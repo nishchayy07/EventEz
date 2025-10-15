@@ -20,6 +20,7 @@ import Loading from './components/Loading'
 import Sports from './pages/Sports'
 import Nightlife from './pages/Nightlife'
 import NowShowing from './pages/NowShowing'
+import Chatbot from './components/Chatbot'
 
 const App = () => {
 
@@ -55,6 +56,7 @@ const App = () => {
         </Route>
       </Routes>
        {!isAdminRoute && <Footer />}
+       {!isAdminRoute && <Chatbot />}
     </>
   )
 }

@@ -1,7 +1,6 @@
 import React from 'react';
 import BlurCircle from '../components/BlurCircle';
-import SportCard from '../components/SportCard';
-import { sportsData } from '../assets/sports';
+import SportShine from '../components/SportShine';
 
 const Sports = () => {
   return (
@@ -9,11 +8,7 @@ const Sports = () => {
       <BlurCircle top="150px" left="0px" />
       <BlurCircle bottom="50px" right="50px" />
       <h1 className='text-lg font-medium my-4'>Sports</h1>
-      <div className='flex flex-wrap max-sm:justify-center gap-8'>
-        {sportsData.map((sport, index) => (
-          <SportCard key={index} sport={sport} />
-        ))}
-      </div>
+      <SportShine />
     </div>
   );
 };
