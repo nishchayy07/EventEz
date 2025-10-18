@@ -10,6 +10,7 @@ import bookingRouter from './routes/bookingRoutes.js';
 import adminRouter from './routes/adminRoutes.js';
 import userRouter from './routes/userRoutes.js';
 import chatRouter from './routes/chatRoutes.js';
+import sportsRouter from './routes/sportsRoutes.js';
 import { stripeWebhooks } from './controllers/stripeWebhooks.js';
 
 const app = express();
@@ -39,6 +40,7 @@ app.use('/api/show', showRouter)
 app.use('/api/booking', authMw, bookingRouter)
 app.use('/api/admin', authMw, adminRouter)
 app.use('/api/user', authMw, userRouter)
+app.use('/api/sports', sportsRouter)
 
 
 app.listen(port, ()=> console.log(`Server listening at http://localhost:${port}`));

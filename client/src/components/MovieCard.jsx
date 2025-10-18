@@ -1,5 +1,5 @@
-import { StarIcon } from 'lucide-react'
-import React from 'react'
+import { StarIcon, Film } from 'lucide-react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import timeFormat from '../lib/timeFormat'
 import { useAppContext } from '../context/AppContext'
@@ -8,6 +8,7 @@ const MovieCard = ({ movie }) => {
 
   const navigate = useNavigate()
   const { image_base_url } = useAppContext()
+  const [imageError, setImageError] = useState(false)
 
   // Defensive accessors to support both API movie objects and local sample objects
   const id = movie?._id || movie?.id || null
@@ -42,8 +43,17 @@ const MovieCard = ({ movie }) => {
   return (
     <div className='flex flex-col justify-between p-3 bg-gray-800 rounded-2xl hover:-translate-y-1 transition duration-300 w-66'>
 
-      <img onClick={handleNavigate}
-        src={imageSrc} alt={title} className='rounded-lg h-52 w-full object-cover object-right-bottom cursor-pointer' />
+      {imageError ? (
+        <div onClick={handleNavigate} className='rounded-lg h-52 w-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center cursor-pointer'>
+          <Film className='w-16 h-16 text-gray-600' />
+        </div>
+      ) : (
+        <img onClick={handleNavigate}
+          src={imageSrc} 
+          alt={title} 
+          className='rounded-lg h-52 w-full object-cover object-right-bottom cursor-pointer'
+          onError={() => setImageError(true)} />
+      )}
 
       <p className='font-semibold mt-2 truncate'>{title}</p>
 

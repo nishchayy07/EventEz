@@ -1,6 +1,7 @@
 import axios from "axios";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Simple AI chat endpoint using OpenAI-compatible APIs
+// Simple AI chat endpoint
 // Expects: { message: string, context?: object }
 export const chatWithAI = async (req, res) => {
 	try {
@@ -19,18 +20,61 @@ export const chatWithAI = async (req, res) => {
 			context: context || {},
 		};
 
-		// Use OpenAI or any compatible endpoint via environment config
+		const systemPrompt = `You are EventEz's helpful concierge. Personalize replies when possible, but do not expose private data. Keep answers concise and friendly.`;
+
+		// Gemini API integration
+		if (process.env.GEMINI_API_KEY) {
+			try {
+				const fullMessage = JSON.stringify({ personalization, message });
+				
+				const apiURL = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
+
+				const reqBody = {
+					contents: [
+						{
+							role: "user",
+							parts: [{ text: systemPrompt }]
+						},
+						{
+							role: "model",
+							parts: [{ text: "Understood. I am EventEz's helpful concierge." }]
+						},
+						{
+							role: "user",
+							parts: [{ text: fullMessage }]
+						}
+					],
+					generationConfig: {
+						temperature: 0.7,
+						maxOutputTokens: 200,
+					}
+				};
+
+				const { data } = await axios.post(apiURL, reqBody, {
+					headers: { 'Content-Type': 'application/json' }
+				});
+
+				const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I had trouble understanding.';
+				return res.json({ success: true, reply: text });
+
+			} catch (error) {
+				const providerData = error?.response?.data;
+				console.error("Gemini API Error:", providerData || error.message);
+				const msg = providerData?.error?.message || 'Gemini chat failed';
+				return res.status(500).json({ success: false, message: msg });
+			}
+		}
+
+		// Fallback to OpenAI or any compatible endpoint
 		const apiKey = process.env.OPENAI_API_KEY || process.env.GROQ_API_KEY || process.env.TOGETHER_API_KEY;
 		const baseURL = process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
-		const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+		const modelName = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 		if (!apiKey) {
 			return res.status(500).json({ success: false, message: 'Missing AI API key' });
 		}
 
-		const systemPrompt = `You are EventEz's helpful concierge. Personalize replies when possible, but do not expose private data. Keep answers concise and friendly.`;
-
 		const payload = {
-			model,
+			model: modelName,
 			messages: [
 				{ role: 'system', content: systemPrompt },
 				{ role: 'user', content: JSON.stringify({ personalization, message }) },
@@ -43,10 +87,10 @@ export const chatWithAI = async (req, res) => {
 			'Content-Type': 'application/json',
 		};
 
-		// Standard OpenAI chat completions
 		const { data } = await axios.post(`${baseURL}/chat/completions`, payload, { headers });
 		const text = data?.choices?.[0]?.message?.content?.trim() || 'Sorry, I did not catch that.';
 		return res.json({ success: true, reply: text });
+
 	} catch (error) {
 		const providerData = error?.response?.data;
 		console.error(providerData || error.message);
