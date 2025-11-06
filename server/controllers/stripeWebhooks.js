@@ -1,6 +1,7 @@
 import stripe from "stripe";
 import Booking from '../models/Booking.js'
 import { inngest } from "../inngest/index.js";
+import crypto from 'crypto'
 
 export const stripeWebhooks = async (request, response)=>{
     const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
@@ -25,9 +26,11 @@ export const stripeWebhooks = async (request, response)=>{
                 const session = sessionList.data[0];
                 const { bookingId } = session.metadata;
 
+                const qrToken = crypto.randomBytes(24).toString('hex');
                 await Booking.findByIdAndUpdate(bookingId, {
                     isPaid: true,
-                    paymentLink: ""
+                    paymentLink: "",
+                    qrToken
                 })
 
                  // Send Confirmation Email

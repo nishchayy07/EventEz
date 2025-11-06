@@ -1,4 +1,7 @@
 import axios from 'axios';
+import SportEvent from '../models/SportEvent.js'
+import Booking from '../models/Booking.js'
+import stripe from 'stripe'
 
 const API_KEY = process.env.THE_SPORTS_DB_API_KEY;
 const BASE_URL = `https://www.thesportsdb.com/api/v1/json/${API_KEY}`;
@@ -70,3 +73,106 @@ export const getSportEvents = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 };
+
+// Get a specific sport event (seatable instance)
+export const getSportEvent = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const event = await SportEvent.findById(id);
+        if (!event) return res.json({ success: false, message: 'Event not found' });
+        res.json({ success: true, event });
+    } catch (error) {
+        console.error('Error fetching sport event:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+// Occupied seats for a sport event
+export const getOccupiedSeatsForEvent = async (req, res) => {
+    try {
+        const { eventId } = req.params;
+        const event = await SportEvent.findById(eventId);
+        if (!event) return res.json({ success: false, message: 'Event not found' });
+        res.json({ success: true, occupiedSeats: event.occupiedSeats || {} });
+    } catch (error) {
+        console.error('Error fetching occupied seats:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+// Create booking for sport event with Stripe
+export const createSportBooking = async (req, res) => {
+    try {
+        const { userId } = req.auth();
+        const { eventId, selectedSeats } = req.body;
+        const { origin } = req.headers;
+
+        const event = await SportEvent.findById(eventId);
+        if (!event) return res.json({ success: false, message: 'Event not found' });
+
+        // availability
+        const isTaken = selectedSeats.some(seat => event.occupiedSeats?.[seat]);
+        if (isTaken) return res.json({ success: false, message: 'Selected Seats are not available.' });
+
+        const amount = event.price * selectedSeats.length;
+
+        const booking = await Booking.create({
+            user: userId,
+            sportEvent: eventId,
+            type: 'sport',
+            amount,
+            bookedSeats: selectedSeats
+        });
+
+        selectedSeats.forEach(seat => { event.occupiedSeats[seat] = userId; });
+        event.markModified('occupiedSeats');
+        await event.save();
+
+        const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
+        const line_items = [{
+            price_data: {
+                currency: 'usd',
+                product_data: { name: event.title },
+                unit_amount: Math.floor(amount) * 100
+            },
+            quantity: 1
+        }];
+
+        const session = await stripeInstance.checkout.sessions.create({
+            success_url: `${origin}/loading/my-bookings`,
+            cancel_url: `${origin}/my-bookings`,
+            line_items,
+            mode: 'payment',
+            metadata: { bookingId: booking._id.toString() },
+            expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
+        });
+
+        booking.paymentLink = session.url;
+        await booking.save();
+
+        res.json({ success: true, url: session.url });
+    } catch (error) {
+        console.error('Error creating sport booking:', error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
+// Simple admin-less creator to materialize a seatable event from team card
+export const createSportEvent = async (req, res) => {
+    try {
+        const { title, sport, venue, image, price } = req.body;
+        const event = await SportEvent.create({
+            title,
+            sport,
+            venue,
+            image,
+            price: price || 20,
+            showDateTime: new Date(Date.now() + 24 * 60 * 60 * 1000),
+            occupiedSeats: {}
+        });
+        res.json({ success: true, event });
+    } catch (error) {
+        console.error('Error creating sport event:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+}

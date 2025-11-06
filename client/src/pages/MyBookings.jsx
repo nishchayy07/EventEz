@@ -46,30 +46,49 @@ const MyBookings = () => {
       </div>
       <h1 className='text-lg font-semibold mb-4'>My Bookings</h1>
 
-      {bookings.map((item,index)=>(
-        <div key={index} className='flex flex-col md:flex-row justify-between bg-primary/8 border border-primary/20 rounded-lg mt-4 p-2 max-w-3xl'>
-          <div className='flex flex-col md:flex-row'>
-            <img src={image_base_url + item.show.movie.poster_path} alt="" className='md:max-w-45 aspect-video h-auto object-cover object-bottom rounded'/>
-            <div className='flex flex-col p-4'>
-              <p className='text-lg font-semibold'>{item.show.movie.title}</p>
-              <p className='text-gray-400 text-sm'>{timeFormat(item.show.movie.runtime)}</p>
-              <p className='text-gray-400 text-sm mt-auto'>{dateFormat(item.show.showDateTime)}</p>
+      {bookings.map((item,index)=>{
+        const isSport = item.type === 'sport';
+        return (
+          <div key={index} className='flex flex-col md:flex-row justify-between bg-primary/8 border border-primary/20 rounded-lg mt-4 p-2 max-w-3xl'>
+            <div className='flex flex-col md:flex-row'>
+              {isSport ? (
+                <img src={item.sportEvent?.image || ''} alt="" className='md:max-w-45 aspect-video h-auto object-cover object-bottom rounded'/>
+              ) : (
+                <img src={image_base_url + item.show.movie.poster_path} alt="" className='md:max-w-45 aspect-video h-auto object-cover object-bottom rounded'/>
+              )}
+              <div className='flex flex-col p-4'>
+                <p className='text-lg font-semibold'>{isSport ? item.sportEvent?.title : item.show.movie.title}</p>
+                <p className='text-gray-400 text-sm'>{isSport ? item.sportEvent?.venue : timeFormat(item.show.movie.runtime)}</p>
+                <p className='text-gray-400 text-sm mt-auto'>{isSport ? dateFormat(item.sportEvent?.showDateTime) : dateFormat(item.show.showDateTime)}</p>
+              </div>
             </div>
-          </div>
 
-          <div className='flex flex-col md:items-end md:text-right justify-between p-4'>
-            <div className='flex items-center gap-4'>
-              <p className='text-2xl font-semibold mb-3'>{currency}{item.amount}</p>
-              {!item.isPaid && <Link to={item.paymentLink} className='bg-primary px-4 py-1.5 mb-3 text-sm rounded-full font-medium cursor-pointer'>Pay Now</Link>}
+            <div className='flex flex-col md:items-end md:text-right justify-between p-4'>
+              <div className='flex items-center gap-4'>
+                <p className='text-2xl font-semibold mb-3'>{currency}{item.amount}</p>
+                {!item.isPaid && <Link to={item.paymentLink} className='bg-primary px-4 py-1.5 mb-3 text-sm rounded-full font-medium cursor-pointer'>Pay Now</Link>}
+              </div>
+              <div className='text-sm'>
+                <p><span className='text-gray-400'>Total Tickets:</span> {item.bookedSeats.length}</p>
+                <p><span className='text-gray-400'>Seat Number:</span> {item.bookedSeats.join(", ")}</p>
+              </div>
+              {item.isPaid && item.qrToken && (
+                <div className='mt-4 flex flex-col items-end'>
+                  <p className='text-sm text-gray-400 mb-2'>{item.qrUsed ? 'QR used' : 'Show this QR at entry'}</p>
+                  <img
+                    alt='ticket-qr'
+                    className='bg-white rounded p-1'
+                    width={160}
+                    height={160}
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(window.location.origin + '/verify/' + item.qrToken)}`}
+                  />
+                </div>
+              )}
             </div>
-            <div className='text-sm'>
-              <p><span className='text-gray-400'>Total Tickets:</span> {item.bookedSeats.length}</p>
-              <p><span className='text-gray-400'>Seat Number:</span> {item.bookedSeats.join(", ")}</p>
-            </div>
-          </div>
 
-        </div>
-      ))}
+          </div>
+        )
+      })}
 
     </div>
   ) : <Loading />

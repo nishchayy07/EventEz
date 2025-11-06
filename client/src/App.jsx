@@ -18,9 +18,11 @@ import { useAppContext } from './context/AppContext'
 import { SignIn } from '@clerk/clerk-react'
 import Loading from './components/Loading'
 import Sports from './pages/Sports'
+import SportsSeatLayout from './pages/SportsSeatLayout'
 import Nightlife from './pages/Nightlife'
 import NowShowing from './pages/NowShowing'
 import Chatbot from './components/Chatbot'
+import VerifyTicket from './pages/VerifyTicket'
 
 const App = () => {
 
@@ -35,6 +37,7 @@ const App = () => {
       <Routes>
         <Route path='/' element={<Home/>} />
         <Route path='/sports' element={<Sports />} />
+        <Route path='/sports/seat/:id' element={<SportsSeatLayout />} />
         <Route path='/nightlife' element={<Nightlife />} />
         <Route path='/movies' element={<Movies />} />
         <Route path='/now-showing' element={<NowShowing />} />
@@ -42,6 +45,7 @@ const App = () => {
         <Route path='/movies/:id/:date' element={<SeatLayout/>} />
         <Route path='/my-bookings' element={<MyBookings/>} />
         <Route path='/loading/:nextUrl' element={<Loading/>} />
+        <Route path='/verify/:token' element={<VerifyTicket/>} />
 
         <Route path='/favorite' element={<Favorite/>} />
         <Route path='/admin/*' element={user ? <Layout/> : (

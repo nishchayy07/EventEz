@@ -206,7 +206,28 @@ const SportShine = () => {
                         <p className='text-xs text-gray-400'>Country</p>
                         <p className='text-lg font-bold text-primary'>{team.strCountry}</p>
                       </div>
-                      <button className='px-3 py-1.5 rounded-md bg-primary hover:bg-primary-dull transition'>View Details</button>
+                      <button
+                        className='px-3 py-1.5 rounded-md bg-primary hover:bg-primary-dull transition'
+                        onClick={async () => {
+                          try {
+                            const payload = {
+                              title: team.strTeam,
+                              sport: team.strSport || 'Sport',
+                              venue: team.strStadium || '',
+                              image: team.strBadge || team.strLogo || '',
+                              price: 20,
+                            };
+                            const { data } = await axios.post('/api/sports/event', payload);
+                            if (data.success) {
+                              window.location.href = `/sports/seat/${data.event._id}`
+                            }
+                          } catch (e) {
+                            console.error(e)
+                          }
+                        }}
+                      >
+                        View Tickets
+                      </button>
                     </div>
                   </div>
                 </div>

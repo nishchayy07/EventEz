@@ -113,3 +113,20 @@ export const getOccupiedSeats = async (req, res)=>{
         res.json({success: false, message: error.message})
     }
 }
+
+// Verify QR token and mark as used (single-use)
+export const verifyQrToken = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const booking = await Booking.findOne({ qrToken: token });
+        if (!booking) return res.status(404).json({ success: false, message: 'Invalid QR' });
+        if (!booking.isPaid) return res.status(400).json({ success: false, message: 'Payment pending' });
+        if (booking.qrUsed) return res.status(400).json({ success: false, message: 'QR already used' });
+        booking.qrUsed = true;
+        await booking.save();
+        res.json({ success: true });
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
