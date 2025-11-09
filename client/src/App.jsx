@@ -23,6 +23,7 @@ import Nightlife from './pages/Nightlife'
 import NowShowing from './pages/NowShowing'
 import Chatbot from './components/Chatbot'
 import VerifyTicket from './pages/VerifyTicket'
+import EventDetails from './pages/EventDetails'
 
 const App = () => {
 
@@ -39,6 +40,7 @@ const App = () => {
         <Route path='/sports' element={<Sports />} />
         <Route path='/sports/seat/:id' element={<SportsSeatLayout />} />
         <Route path='/nightlife' element={<Nightlife />} />
+        <Route path='/nightlife/:id' element={<EventDetails />} />
         <Route path='/movies' element={<Movies />} />
         <Route path='/now-showing' element={<NowShowing />} />
         <Route path='/movies/:id' element={<MovieDetails/>} />

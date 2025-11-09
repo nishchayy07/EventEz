@@ -1,7 +1,6 @@
 import React from 'react';
 import BlurCircle from '../components/BlurCircle';
-import NightlifeCard from '../components/NightlifeCard';
-import { nightlifeData } from '../assets/nightlife';
+import NightlifeShine from '../components/NightlifeShine';
 
 const Nightlife = () => {
   return (
@@ -9,11 +8,7 @@ const Nightlife = () => {
       <BlurCircle top="150px" left="0px" />
       <BlurCircle bottom="50px" right="50px" />
       <h1 className='text-lg font-medium my-4'>Nightlife</h1>
-      <div className='flex flex-wrap max-sm:justify-center gap-8'>
-        {nightlifeData.map((item, index) => (
-          <NightlifeCard key={index} item={item} />
-        ))}
-      </div>
+      <NightlifeShine />
     </div>
   );
 };
