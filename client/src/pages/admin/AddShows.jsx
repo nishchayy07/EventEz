@@ -208,7 +208,7 @@ const AddShows = () => {
                     location: selectedNightlifeEvent.location,
                     description: selectedNightlifeEvent.description || '',
                     image: selectedNightlifeEvent.image,
-                    landscapeImage: selectedNightlifeEvent.landscapeImage || '',
+                    landscapeImage: selectedNightlifeEvent.landscapeImage ,
                     artist: selectedNightlifeEvent.artist || '',
                     artistImage: selectedNightlifeEvent.artistImage || '',
                     duration: selectedNightlifeEvent.duration || '',

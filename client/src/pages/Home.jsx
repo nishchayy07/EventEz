@@ -98,11 +98,11 @@ const Home = () => {
                 <div 
                   key={event._id} 
                   onClick={() => navigate(`/sports-seat-layout/${event._id}`)}
-                  className="w-[280px] flex-shrink-0 cursor-pointer"
+                  className="w-[220px] flex-shrink-0 cursor-pointer"
                 >
                   <div className="group relative rounded-lg overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105">
                     <img 
-                      className="w-full h-48 object-cover" 
+                      className="w-full h-80 object-cover" 
                       src={event.image || 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=500'} 
                       alt={event.title}
                     />
@@ -142,11 +142,11 @@ const Home = () => {
                 <div 
                   key={event._id} 
                   onClick={() => navigate('/nightlife')}
-                  className="w-[280px] flex-shrink-0 cursor-pointer"
+                  className="w-[220px] flex-shrink-0 cursor-pointer"
                 >
                   <div className="group relative rounded-lg overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105">
                     <img 
-                      className="w-full h-48 object-cover" 
+                      className="w-full h-80 object-cover" 
                       src={event.image || 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=500'} 
                       alt={event.title}
                     />

@@ -1,4 +1,7 @@
-import NightlifeEvent from "../models/NightlifeEvent.js";
+import NightlifeEvent from '../models/NightlifeEvent.js';
+import Booking from '../models/Booking.js';
+import stripe from 'stripe';
+import { inngest } from '../inngest/index.js';
 
 // Categories for nightlife
 export const nightlifeCategories = [
@@ -18,9 +21,14 @@ const mockNightlifeEvents = [
         venue: 'Ophelia Lounge',
         location: 'Delhi/NCR',
         category: 'Concerts',
-        date: '2025-11-09T20:00:00',
         price: '₹2999',
         image: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7',
+        landscapeImage:'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2940&auto=format&fit=crop',
+        artist: 'Alan Walker',
+        artistImage:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqFPMS1dzKufGIUHn5Oo5K5EvPab6JG7WirCKFsPMM-lvoAo94Nzm4hfJa-dTzASZ2CK3I_Q-2kZDMcMytTqQrHmJtp0y3BI_ySh7zTch1PA&s=10',
+        duration: '3 hours',
+        ageRestriction: '18+',
+        description: 'Join us for an unforgettable Saturday Night Live experience with amazing music, drinks, and vibes at the stunning Ophelia Lounge.'
     },
     {
         id: '2',
@@ -28,11 +36,14 @@ const mockNightlifeEvents = [
         venue: 'The Laugh Club',
         location: 'Delhi/NCR',
         category: 'Comedy Shows',
-        date: '2025-11-10T21:00:00',
         price: '₹1299',
         image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U3VuLCAxNiBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00355125-zfdunhwukb-portrait.jpg',
+        landscapeImage: 'https://assets-in.bmscdn.com/discovery-catalog/events/et00355125-ndvulngklb-landscape.jpg',
         artist: 'Anubhav Singh Bassi',
         artistImage: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U3VuLCAxNiBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00355125-zfdunhwukb-portrait.jpg',
+        duration: '90 minutes',
+        ageRestriction: '18+',
+        description: 'Watch Anubhav Singh Bassi perform his hilarious stand-up routine "Kisi ko Batana Mat" live!'
     },
     {
         id: '3',
@@ -40,9 +51,14 @@ const mockNightlifeEvents = [
         venue: 'Indira Gandhi Indoor Stadium',
         location: 'New Delhi',
         category: 'Comedy Shows',
-        date: '2025-11-09T20:00:00',
         price: '₹4499',
         image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-TW9uLCAxNyBOb3Ygb253YXJkcw%3D%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end:l-text,ie-UFJPTU9URUQ%3D,co-FFFFFF,bg-DC354B,ff-Roboto,fs-20,lx-N16,ly-12,lfo-top_right,pa-12_14_12_14,r-6,l-end/et00454335-hqmbkqumjp-portrait.jpg',
+        landscapeImage: 'https://assets-in.bmscdn.com/nmcms/events/banner/desktop/media-desktop-samay-raina-still-alive-unfiltered-0-2025-7-29-t-16-14-37.jpg',
+        artist: 'Samay Raina',
+        artistImage: 'https://admin.hire4event.com/assets/artistimage/17352892321735289232Samay.webp',
+        duration: '2 hours',
+        ageRestriction: '18+',
+        description: 'Samay Raina brings his unfiltered comedy to Delhi in this special live show.'
     },
     {
         id: '4',
@@ -50,9 +66,14 @@ const mockNightlifeEvents = [
         venue: 'Nehru Stadium',
         location: 'Delhi',
         category: 'Theatre Shows',
-        date: '2025-11-10T20:00:00',
         price: '₹499',
         image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U3VuLCAxNiBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end:l-text,ie-UFJPTU9URUQ%3D,co-FFFFFF,bg-DC354B,ff-Roboto,fs-20,lx-N16,ly-12,lfo-top_right,pa-12_14_12_14,r-6,l-end/et00462375-uruhvkracx-portrait.jpg',
+        landscapeImage: 'https://assets-in.bmscdn.com/nmcms/events/banner/desktop/media-desktop-kuch-bhi-ho-sakta-hai-hyderabad-theatre-festival-0-2025-11-2-t-4-53-58.jpg',
+        artist: 'Anupam Kher',
+        artistImage: 'https://m.media-amazon.com/images/M/MV5BMWI1MGI2MWQtNjM1NS00NDg3LTg5ZmMtNzI3YzM2YjNiYjFiXkEyXkFqcGc@._V1_.jpg',
+        duration: '2 hours 30 minutes',
+        ageRestriction: 'All Ages',
+        description: 'A thought-provoking theatrical performance as part of the prestigious Delhi Theatre Festival.'
     },
     {
         id: '5',
@@ -60,9 +81,14 @@ const mockNightlifeEvents = [
         venue: 'Nehru Stadium',
         location: 'Delhi',
         category: 'Theatre Shows',
-        date: '2025-11-15T22:00:00',
         price: '₹999',
         image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U2F0LCAxNSBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00462380-nxjnvwzxep-portrait.jpg',
+        landscapeImage: 'https://assets-in.bmscdn.com/nmcms/events/banner/desktop/media-desktop-einstein-7th-december-bengaluru-theatre-festival-0-2025-10-19-t-3-0-20.jpg',
+        artist: 'Naseeruddin Shah',
+        artistImage: 'https://resizing.flixster.com/8U7KrCa2z21pTO5bg4tyjaOl3t8=/fit-in/352x330/v2/https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/72504_v9_bc.jpg',
+        duration: '2 hours',
+        ageRestriction: '12+',
+        description: 'A fascinating theatrical journey into the life and mind of Albert Einstein.'
     },
     {
         id: '6',
@@ -70,9 +96,14 @@ const mockNightlifeEvents = [
         venue: 'Jio World Convention Centre: Mumbai',
         location: 'Mumbai',
         category: 'Concerts',
-        date: '2025-12-26T19:00:00',
         price: '₹1299',
         image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-RnJpLCAyNiBEZWM%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00458408-csskcxnekn-portrait.jpg',
+        landscapeImage: 'https://assets-in.bmscdn.com/nmcms/events/banner/desktop/media-desktop-ap-dhillon-one-of-one-tour-mumbai-0-2025-9-28-t-7-29-2.jpg',
+        artist: 'AP Dhillon',
+        artistImage: 'https://pearlentertainment.in/wp-content/uploads/classified-listing/2024/09/AP.Dhillon1.jpg',
+        duration: '3 hours',
+        ageRestriction: '18+',
+        description: 'AP Dhillon brings his electrifying "One Of One Tour" to Mumbai!'
     },
     {
         id: '7',
@@ -80,9 +111,14 @@ const mockNightlifeEvents = [
         venue: 'Nehru Stadium',
         location: 'Delhi',
         category: 'Concerts',
-        date: '2025-12-26T19:00:00',
         price: '₹1299',
         image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U2F0LCAyOCBNYXI%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00455992-cskuwbmxvk-portrait.jpg',
+        landscapeImage: 'https://assets-in.bmscdn.com/nmcms/events/banner/desktop/media-desktop-satrangi-re-by-sonu-nigam-0-2025-7-30-t-7-12-36.jpg',
+        artist: 'Sonu Nigam',
+        artistImage: 'https://artistbookingcompany.com/wp-content/uploads/2024/03/sonu-nigam-680x680.jpg',
+        duration: '3 hours 30 minutes',
+        ageRestriction: 'All Ages',
+        description: 'The legendary Sonu Nigam performs "Satrangi Re" - a musical extravaganza.'
     },
     {
         id: '8',
@@ -90,9 +126,14 @@ const mockNightlifeEvents = [
         venue: 'CP67 Mall:Mohali',
         location: 'Chandigarh',
         category: 'Comedy Shows',
-        date: '2025-12-26T19:00:00',
         price: '₹499',
         image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U2F0LCAxNSBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00329412-wqddascxcw-portrait.jpg',
+        landscapeImage: 'https://assets-in.bmscdn.com/nmcms/mobile/media-mobile-kal-ki-chinta-nahi-karta-ft-ravi-gupta-2025-4-17-t-14-55-46.jpg',
+        artist: 'Ravi Gupta',
+        artistImage: 'https://i0.wp.com/deadant.co/wp-content/uploads/2023/06/DA-WEBSITE-19.png?fit=1350%2C650&ssl=1',
+        duration: '90 minutes',
+        ageRestriction: '16+',
+        description: 'Ravi Gupta presents his hilarious stand-up show about living in the moment.'
     },
     {
         id: '9',
@@ -100,9 +141,14 @@ const mockNightlifeEvents = [
         venue: 'CP67 Mall:Mohali',
         location: 'Chandigarh',
         category: 'Comedy Shows',
-        date: '2025-12-26T19:00:00',
         price: '₹499',
         image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U3VuLCAxNiBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00419828-rtfdvqpztg-portrait.jpg',
+        landscapeImage: 'https://assets-in.bmscdn.com/discovery-catalog/events/et00426536-uhdzclkxxu-landscape.jpg',
+        artist: 'Aakash Gupta',
+        artistImage: 'https://imdatahubslg.blr1.digitaloceanspaces.com/profile_img/Aakash%20Gupta_1747997165.png',
+        duration: '75 minutes',
+        ageRestriction: '18+',
+        description: 'Aakash Gupta brings his witty observations about everyday life.'
     },
     {
         id: '10',
@@ -110,9 +156,14 @@ const mockNightlifeEvents = [
         venue: 'CP67 Mall:Mohali',
         location: 'Chandigarh',
         category: 'Comedy Shows',
-        date: '2025-12-26T20:00:00',
         price: '₹499',
         image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U3VuLCAyMSBEZWM%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00331714-blzqtszsvj-portrait.jpg',
+        landscapeImage: 'https://assets-in.bmscdn.com/discovery-catalog/events/et00313122-wlbrrttapg-landscape.jpg',
+        artist: 'Gaurav Kapoor',
+        artistImage: 'https://media.licdn.com/dms/image/v2/C5622AQGXVHQ5W980UA/feedshare-shrink_800/feedshare-shrink_800/0/1661914163746?e=2147483647&v=beta&t=Rltwy9hAoAgrKx71lqaMTV6z4kTSG03X9tzTgT-y4gw',
+        duration: '90 minutes',
+        ageRestriction: '18+',
+        description: 'Gaurav Kapoor Live is back with his signature comedy style!'
     },
     {
         id: '11',
@@ -120,9 +171,14 @@ const mockNightlifeEvents = [
         venue: 'CP67 Mall:Mohali',
         location: 'Chandigarh',
         category: 'Qawali Night',
-        date: '2025-12-26T20:00:00',
         price: '₹999',
         image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U3VuLCAyMyBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00468484-exlkezngpn-portrait.jpg',
+        landscapeImage: 'https://res.cloudinary.com/dwzmsvp7f/image/upload/f_auto,w_1280/c_crop%2Cg_custom%2Fv1753852019%2Fril0oxpkz2s0wc29zc43.jpg',
+        artist: 'Sufi Ensemble',
+        artistImage: 'https://weddingsutra.com/images/wedding-images/entertaining/sufi-singers/sufi-singers-pic10.jpg',
+        duration: '3 hours',
+        ageRestriction: 'All Ages',
+        description: 'Immerse yourself in the spiritual melodies of Sufi music.'
     },
     {
         id: '12',
@@ -130,9 +186,14 @@ const mockNightlifeEvents = [
         venue: 'CP67 Mall:Mohali',
         location: 'Chandigarh',
         category: 'Concerts',
-        date: '2025-11-15T20:00:00',
         price: '₹4999',
         image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U2F0LCAyOSBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00468465-uhkdaplggf-portrait.jpg',
+        landscapeImage: 'https://assets-in.bmscdn.com/nmcms/events/banner/desktop/media-desktop-the-night-before-tomorrow-a-the-weeknd-fan-event-0-2025-10-28-t-7-31-58.jpg',
+        artist: 'The Weeknd',
+        artistImage: 'https://static.wikia.nocookie.net/taylor-swift/images/3/3f/The_Weeknd_1.jpg/revision/latest?cb=20250608131114',
+        duration: '4 hours',
+        ageRestriction: '18+',
+        description: 'A spectacular fan event celebrating The Weeknd!'
     },
     {
         id: '13',
@@ -140,9 +201,14 @@ const mockNightlifeEvents = [
         venue: 'Kedarnath Sahni Auditorium: Delhi',
         location: 'Delhi',
         category: 'Theatre Shows',
-        date: '2025-11-17T22:00:00',
         price: '₹899',
         image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-RnJpLCAxNCBOb3Ygb253YXJkcw%3D%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00376688-nansgzqfxr-portrait.jpg',
+        landscapeImage: 'https://images.unsplash.com/photo-1503095396549-807759245b35?q=80&w=2942&auto=format&fit=crop',
+        artist: 'Ashutosh Rana',
+        artistImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2787&auto=format&fit=crop',
+        duration: '2 hours 15 minutes',
+        ageRestriction: 'All Ages',
+        description: 'A powerful theatrical production featuring renowned actor Ashutosh Rana.'
     },
     {
         id: '14',
@@ -150,9 +216,14 @@ const mockNightlifeEvents = [
         venue: 'Kedarnath Sahni Auditorium: Delhi',
         location: 'Delhi',
         category: 'Theatre Shows',
-        date: '2025-11-17T22:00:00',
         price: '₹899',
         image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U2F0LCAxNSBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00462378-ggbwsjvfbe-portrait.jpg',
+        landscapeImage: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?q=80&w=2940&auto=format&fit=crop',
+        artist: 'Theatre Artists Collective',
+        artistImage: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=2787&auto=format&fit=crop',
+        duration: '2 hours',
+        ageRestriction: '12+',
+        description: 'Part of the Delhi Theatre Festival, a captivating drama exploring contemporary social issues.'
     },
     {
         id: '15',
@@ -160,9 +231,14 @@ const mockNightlifeEvents = [
         venue: 'Kedarnath Sahni Auditorium',
         location: 'Noida',
         category: 'Qawali Night',
-        date: '2025-11-17T22:00:00',
         price: '₹899',
         image: 'https://media.insider.in/image/upload/c_crop,g_custom/v1753852044/uhx3uuehlydr0hcmgxk3.jpg',
+        landscapeImage: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2940&auto=format&fit=crop',
+        artist: 'Qawwali Masters',
+        artistImage: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=2787&auto=format&fit=crop',
+        duration: '3 hours',
+        ageRestriction: 'All Ages',
+        description: 'Experience the divine art of Sufi music in Noida.'
     },
     {
         id: '16',
@@ -170,9 +246,14 @@ const mockNightlifeEvents = [
         venue: 'The Piano Man New Delhi',
         location: 'Delhi',
         category: 'Qawali Night',
-        date: '2025-11-28T20:30:00',
         price: '₹899',
         image: 'https://media.insider.in/image/upload/c_crop,g_custom/v1760787674/vb5m7kz70ltp5jybrcxx.png',
+        landscapeImage: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2940&auto=format&fit=crop',
+        artist: 'Amarrass Ensemble',
+        artistImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=2787&auto=format&fit=crop',
+        duration: '2 hours 30 minutes',
+        ageRestriction: 'All Ages',
+        description: 'A tribute to the legendary Nusrat Fateh Ali Khan.'
     },
     {
         id: '17',
@@ -180,9 +261,14 @@ const mockNightlifeEvents = [
         venue: 'Cosy Box',
         location: 'Gurugram',
         category: 'Qawali Night',
-        date: '2025-11-28T20:30:00',
         price: '₹899',
         image: 'https://media.insider.in/image/upload/c_crop,g_custom/v1757936057/uh6bl4mpnxluzwht6k0c.png',
+        landscapeImage: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2940&auto=format&fit=crop',
+        artist: 'Qawwali Group',
+        artistImage: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?q=80&w=2787&auto=format&fit=crop',
+        duration: '3 hours',
+        ageRestriction: 'All Ages',
+        description: 'An intimate qawwali night at Cosy Box in Gurugram.'
     }
 ];
 
@@ -341,5 +427,194 @@ export const deleteNightlifeEvent = async (req, res) => {
     } catch (error) {
         console.error('Error deleting nightlife event:', error);
         res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Sync database events with mock data (admin utility)
+export const syncEventsWithMockData = async (req, res) => {
+    try {
+        // Get all events from database
+        const dbEvents = await NightlifeEvent.find({});
+        
+        let updatedCount = 0;
+        
+        // For each database event, find matching mock event by title
+        for (const dbEvent of dbEvents) {
+            const mockEvent = mockNightlifeEvents.find(mock => mock.title === dbEvent.title);
+            
+            if (mockEvent) {
+                // Update with missing fields from mock data
+                await NightlifeEvent.findByIdAndUpdate(dbEvent._id, {
+                    landscapeImage: dummyEvents.landscapeImage || '',
+                    artistImage: mockEvent.artistImage || '',
+                    artist: mockEvent.artist || '',
+                    duration: mockEvent.duration || '',
+                    ageRestriction: mockEvent.ageRestriction || '',
+                    description: mockEvent.description || ''
+                });
+                updatedCount++;
+            }
+        }
+        
+        res.json({ 
+            success: true, 
+            message: `Successfully updated ${updatedCount} events with complete data from mock events.`,
+            updatedCount 
+        });
+    } catch (error) {
+        console.error('Error syncing events:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Create nightlife booking with Stripe payment
+export const createNightlifeBooking = async (req, res) => {
+    try {
+        const { userId } = req.auth();
+        const { eventId, selectedSeats } = req.body;
+        const { origin } = req.headers;
+
+        // Get the event details
+        const event = await NightlifeEvent.findById(eventId);
+        if (!event) {
+            return res.json({ success: false, message: "Event not found" });
+        }
+
+        // Check if seats are available - ensure occupiedSeats is an array
+        const occupiedSeats = Array.isArray(event.occupiedSeats) ? event.occupiedSeats : [];
+        const isAnySeatTaken = selectedSeats.some(seat => occupiedSeats.includes(seat));
+
+        if (isAnySeatTaken) {
+            return res.json({ success: false, message: "Selected seats are not available." });
+        }
+
+        // Calculate amount
+        const basePrice = parseInt(event.price.replace(/[^0-9]/g, ''));
+        const amount = basePrice * selectedSeats.length;
+
+        // Create a new booking
+        const booking = await Booking.create({
+            user: userId,
+            nightlifeEvent: eventId,
+            type: 'nightlife',
+            amount: amount,
+            bookedSeats: selectedSeats
+        });
+
+        // Update occupied seats
+        event.occupiedSeats = [...occupiedSeats, ...selectedSeats];
+        await event.save();
+
+        // Stripe Gateway Initialize
+        const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
+
+        // Creating line items for Stripe
+        const line_items = [{
+            price_data: {
+                currency: 'inr',
+                product_data: {
+                    name: event.title,
+                    description: `${event.category} at ${event.venue}`
+                },
+                unit_amount: Math.floor(amount) * 100
+            },
+            quantity: 1
+        }];
+
+        const session = await stripeInstance.checkout.sessions.create({
+            success_url: `${origin}/my-bookings`,
+            cancel_url: `${origin}/nightlife/${eventId}/seats`,
+            line_items: line_items,
+            mode: 'payment',
+            metadata: {
+                bookingId: booking._id.toString()
+            },
+            expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // Expires in 30 minutes
+        });
+
+        booking.paymentLink = session.url;
+        await booking.save();
+
+        // Run Inngest Scheduler Function to check payment status after 10 minutes
+        await inngest.send({
+            name: "app/checkpayment",
+            data: {
+                bookingId: booking._id.toString()
+            }
+        });
+
+        res.json({ success: true, url: session.url });
+
+    } catch (error) {
+        console.log(error.message);
+        res.json({ success: false, message: error.message });
+    }
+};
+
+// Create nightlife ticket booking (for events without seat selection)
+export const createNightlifeTicketBooking = async (req, res) => {
+    try {
+        const { userId } = req.auth();
+        const { eventId, ticketType, price } = req.body;
+        const { origin } = req.headers;
+
+        // Get the event details
+        const event = await NightlifeEvent.findById(eventId);
+        if (!event) {
+            return res.json({ success: false, message: "Event not found" });
+        }
+
+        // Create a new booking with ticket type (no seats)
+        const booking = await Booking.create({
+            user: userId,
+            nightlifeEvent: eventId,
+            type: 'nightlife',
+            amount: price,
+            bookedSeats: [ticketType], // Store ticket type instead of seat numbers
+        });
+
+        // Stripe Gateway Initialize
+        const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
+
+        // Creating line items for Stripe
+        const line_items = [{
+            price_data: {
+                currency: 'inr',
+                product_data: {
+                    name: `${event.title} - ${ticketType.toUpperCase()} Ticket`,
+                    description: `${event.category} at ${event.venue}`
+                },
+                unit_amount: Math.floor(price) * 100
+            },
+            quantity: 1
+        }];
+
+        const session = await stripeInstance.checkout.sessions.create({
+            success_url: `${origin}/my-bookings`,
+            cancel_url: `${origin}/nightlife/${eventId}/tickets`,
+            line_items: line_items,
+            mode: 'payment',
+            metadata: {
+                bookingId: booking._id.toString()
+            },
+            expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // Expires in 30 minutes
+        });
+
+        booking.paymentLink = session.url;
+        await booking.save();
+
+        // Run Inngest Scheduler Function to check payment status
+        await inngest.send({
+            name: "app/checkpayment",
+            data: {
+                bookingId: booking._id.toString()
+            }
+        });
+
+        res.json({ success: true, url: session.url });
+
+    } catch (error) {
+        console.log(error.message);
+        res.json({ success: false, message: error.message });
     }
 };
