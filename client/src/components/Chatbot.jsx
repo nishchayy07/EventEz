@@ -1,10 +1,10 @@
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useMemo, useRef, useState, useEffect } from 'react'
 import { MessageCircle, SendHorizonal, X } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { useAppContext } from '../context/AppContext'
 
 const Chatbot = () => {
-	const { axios, user, shows, favoriteMovies } = useAppContext()
+	const { axios, user, shows, favoriteMovies, selectedLocation } = useAppContext()
 	const [isOpen, setIsOpen] = useState(false)
 	const [messages, setMessages] = useState([
 		{ role: 'assistant', content: 'Hi! I\'m your EventEz assistant. How can I help today?' }
@@ -13,13 +13,25 @@ const Chatbot = () => {
 	const [isSending, setIsSending] = useState(false)
 	const location = useLocation()
 	const listRef = useRef(null)
+	const hasInitialized = useRef(false)
 
 	const context = useMemo(() => ({
 		pathname: location.pathname,
 		showsCount: shows?.length || 0,
 		favoritesCount: favoriteMovies?.length || 0,
 		userName: user?.fullName || user?.username || null,
-	}), [location.pathname, shows, favoriteMovies, user])
+		location: selectedLocation || 'Chandigarh',
+	}), [location.pathname, shows, favoriteMovies, user, selectedLocation])
+
+	// Update initial message when location changes (only once)
+	useEffect(() => {
+		if (!hasInitialized.current && selectedLocation) {
+			hasInitialized.current = true;
+			setMessages([
+				{ role: 'assistant', content: `Hi! I'm your EventEz assistant. I can help you find events in ${selectedLocation}. How can I help today?` }
+			]);
+		}
+	}, [selectedLocation]);
 
 	const send = async () => {
 		if (!input.trim() || isSending) return

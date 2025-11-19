@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useMemo } from 'react'
 
 
 
@@ -20,7 +20,8 @@ const SportsSeatLayout = () => {
 
   // Stadium stands with correct directions and upper/lower tiers
 
-  const stands = [
+  // Base stands configuration (colors will be applied dynamically based on sport)
+  const baseStands = [
 
     // North Stands
 
@@ -47,10 +48,6 @@ const SportsSeatLayout = () => {
       rows: ['A', 'B', 'C', 'D'],
 
       seatsPerRow: 32,
-
-      color: '#FF6B8A',
-
-      lightColor: '#F84565',
 
       tier: 'Premium'
 
@@ -79,10 +76,6 @@ const SportsSeatLayout = () => {
       rows: ['A', 'B', 'C', 'D', 'E'],
 
       seatsPerRow: 32,
-
-      color: '#FF6B8A',
-
-      lightColor: '#F84565',
 
       tier: 'Premium'
 
@@ -114,10 +107,6 @@ const SportsSeatLayout = () => {
 
       seatsPerRow: 32,
 
-      color: '#FF6B8A',
-
-      lightColor: '#F84565',
-
       tier: 'Premium'
 
     },
@@ -145,10 +134,6 @@ const SportsSeatLayout = () => {
       rows: ['A', 'B', 'C', 'D', 'E'],
 
       seatsPerRow: 32,
-
-      color: '#FF6B8A',
-
-      lightColor: '#F84565',
 
       tier: 'Premium'
 
@@ -180,10 +165,6 @@ const SportsSeatLayout = () => {
 
       seatsPerRow: 30,
 
-      color: '#8B5CF6',
-
-      lightColor: '#A78BFA',
-
       tier: 'Standard'
 
     },
@@ -211,10 +192,6 @@ const SportsSeatLayout = () => {
       rows: ['A', 'B', 'C', 'D', 'E'],
 
       seatsPerRow: 30,
-
-      color: '#8B5CF6',
-
-      lightColor: '#A78BFA',
 
       tier: 'Standard'
 
@@ -246,10 +223,6 @@ const SportsSeatLayout = () => {
 
       seatsPerRow: 30,
 
-      color: '#8B5CF6',
-
-      lightColor: '#A78BFA',
-
       tier: 'Standard'
 
     },
@@ -278,29 +251,11 @@ const SportsSeatLayout = () => {
 
       seatsPerRow: 30,
 
-      color: '#8B5CF6',
-
-      lightColor: '#A78BFA',
-
       tier: 'Standard'
 
     }
 
   ]
-
-  
-
-  // Convert angles to radians
-
-  const standsWithRadians = stands.map(stand => ({
-
-    ...stand,
-
-    startAngleRad: (stand.startAngle - 90) * (Math.PI / 180),
-
-    endAngleRad: (stand.endAngle - 90) * (Math.PI / 180)
-
-  }))
 
   const { id } = useParams()
 
@@ -319,6 +274,73 @@ const SportsSeatLayout = () => {
   const seatsSectionRef = useRef(null)
 
   const { axios, getToken, user } = useAppContext();
+
+  // Get sport-specific color scheme for each direction
+  const getDirectionColors = useMemo(() => {
+    const sport = event?.sport?.toLowerCase()
+    
+    if (sport === 'football') {
+      return {
+        north: { color: '#66BB6A', lightColor: '#81C784' },    // Green
+        south: { color: '#4CAF50', lightColor: '#66BB6A' },    // Darker green
+        east: { color: '#8BC34A', lightColor: '#9CCC65' },    // Light green
+        west: { color: '#689F38', lightColor: '#7CB342' }      // Olive green
+      }
+    } else if (sport === 'basketball') {
+      return {
+        north: { color: '#C62828', lightColor: '#E53935' },    // Red
+        south: { color: '#FF6F00', lightColor: '#FF9800' },    // Orange
+        east: { color: '#D32F2F', lightColor: '#F44336' },     // Bright red
+        west: { color: '#F57C00', lightColor: '#FF9800' }      // Deep orange
+      }
+    } else if (sport === 'tennis') {
+      return {
+        north: { color: '#81C784', lightColor: '#A5D6A7' },    // Light green
+        south: { color: '#66BB6A', lightColor: '#81C784' },    // Medium green
+        east: { color: '#A5D6A7', lightColor: '#C8E6C9' },    // Very light green
+        west: { color: '#4CAF50', lightColor: '#66BB6A' }      // Fresh green
+      }
+    } else if (sport === 'badminton') {
+      return {
+        north: { color: '#42A5F5', lightColor: '#64B5F6' },    // Blue
+        south: { color: '#2196F3', lightColor: '#42A5F5' },    // Darker blue
+        east: { color: '#5C9BD5', lightColor: '#7BB3E8' },     // Sky blue
+        west: { color: '#1976D2', lightColor: '#2196F3' }       // Deep blue
+      }
+    } else {
+      // Cricket or default: Varied pink/purple/red theme
+      return {
+        north: { color: '#FF6B8A', lightColor: '#F84565' },    // Pink
+        south: { color: '#8B5CF6', lightColor: '#A78BFA' },    // Purple
+        east: { color: '#EC407A', lightColor: '#F06292' },     // Rose
+        west: { color: '#7E57C2', lightColor: '#9575CD' }      // Deep purple
+      }
+    }
+  }, [event?.sport])
+  
+  // Apply direction-specific colors to stands
+  const stands = useMemo(() => baseStands.map(stand => {
+    const directionColors = getDirectionColors[stand.direction.toLowerCase()]
+    return {
+      ...stand,
+      color: directionColors.color,
+      lightColor: directionColors.lightColor
+    }
+  }), [getDirectionColors])
+
+  
+
+  // Convert angles to radians
+
+  const standsWithRadians = stands.map(stand => ({
+
+    ...stand,
+
+    startAngleRad: (stand.startAngle - 90) * (Math.PI / 180),
+
+    endAngleRad: (stand.endAngle - 90) * (Math.PI / 180)
+
+  }))
 
   const getEvent = async () =>{
 
@@ -480,7 +502,24 @@ const SportsSeatLayout = () => {
 
     const centerY = 50
 
-    
+    const isFootball = event?.sport?.toLowerCase() === 'football'
+    const isBasketball = event?.sport?.toLowerCase() === 'basketball'
+    const isTennis = event?.sport?.toLowerCase() === 'tennis'
+    const isBadminton = event?.sport?.toLowerCase() === 'badminton'
+    const isRectangularSport = isFootball || isBasketball
+    const isCircularSport = isFootball || isTennis || isBadminton  // Sports that fill the full circle
+
+    // Football/Basketball field dimensions - rectangle inscribed in the circular stands
+    // Inner radius of lower stands is 25, so diagonal must equal diameter of 50 to touch circle
+    // For corners to touch: sqrt(width² + height²) = 50
+    // Basketball: using 41.8 x 28.4: diagonal = sqrt(41.8² + 28.4²) ≈ 50.0 (touches circle perfectly)
+    // Football: using 41.3 x 28.2: diagonal = sqrt(41.3² + 28.2²) ≈ 50.01 (touches circle)
+    const innerRadius = 25
+    // Optimized dimensions for perfect circle fit - basketball slightly wider
+    const rectangularFieldWidth = isBasketball ? 41.8 : 41.3  // basketball optimized width
+    const rectangularFieldHeight = isBasketball ? 28.4 : 28.2  // basketball optimized height
+    const rectangularFieldX = centerX - rectangularFieldWidth / 2
+    const rectangularFieldY = centerY - rectangularFieldHeight / 2
 
     return (
 
@@ -503,6 +542,98 @@ const SportsSeatLayout = () => {
               width="1.1" 
 
               height="1.1" 
+
+              preserveAspectRatio="xMidYMid slice"
+
+            />
+
+          </pattern>
+
+          {/* Football field image pattern - rotated 90 degrees, fills circle completely */}
+
+          <pattern id="footballGroundImage" x="0" y="0" width="1" height="1" patternContentUnits="objectBoundingBox">
+
+            <g transform="translate(0.5, 0.5) rotate(90) translate(-0.5, -0.5)">
+
+              <image 
+
+                href="/foot1.png"
+
+                x="0" 
+
+                y="0" 
+
+                width="1" 
+
+                height="1" 
+
+                preserveAspectRatio="xMidYMid slice"
+
+              />
+
+            </g>
+
+          </pattern>
+
+          {/* Basketball court image pattern - no rotation, fills completely */}
+
+          <pattern id="basketballGroundImage" x="0" y="0" width="1" height="1" patternContentUnits="objectBoundingBox">
+
+            <image 
+
+              href="/basket2.png"
+
+              x="0" 
+
+              y="0" 
+
+              width="1" 
+
+              height="1" 
+
+              preserveAspectRatio="xMidYMid slice"
+
+            />
+
+          </pattern>
+
+          {/* Tennis court image pattern - fills circle completely */}
+
+          <pattern id="tennisGroundImage" x="0" y="0" width="1" height="1" patternContentUnits="objectBoundingBox">
+
+            <image 
+
+              href="/teenis2.png"
+
+              x="0" 
+
+              y="0" 
+
+              width="1" 
+
+              height="1" 
+
+              preserveAspectRatio="xMidYMid slice"
+
+            />
+
+          </pattern>
+
+          {/* Badminton court image pattern - fills circle completely */}
+
+          <pattern id="badmintonGroundImage" x="0" y="0" width="1" height="1" patternContentUnits="objectBoundingBox">
+
+            <image 
+
+              href="/badminton1.png"
+
+              x="0" 
+
+              y="0" 
+
+              width="1" 
+
+              height="1" 
 
               preserveAspectRatio="xMidYMid slice"
 
@@ -533,6 +664,73 @@ const SportsSeatLayout = () => {
             </feMerge>
 
           </filter>
+
+          {/* Radial gradient for inner circle fill - wow effect (football) */}
+
+          <radialGradient id="innerCircleGradient" cx="50%" cy="50%" r="50%">
+
+            <stop offset="0%" stopColor="#1a4d2e" stopOpacity="0.4"/>
+
+            <stop offset="40%" stopColor="#0f2818" stopOpacity="0.6"/>
+
+            <stop offset="70%" stopColor="#0a1a0f" stopOpacity="0.8"/>
+
+            <stop offset="100%" stopColor="#000000" stopOpacity="1"/>
+
+          </radialGradient>
+
+          {/* Radial gradient for basketball court - red/brown/orange theme */}
+
+          <radialGradient id="basketballCircleGradient" cx="50%" cy="50%" r="50%">
+
+            <stop offset="0%" stopColor="#c62828" stopOpacity="0.3"/>
+
+            <stop offset="30%" stopColor="#8d0000" stopOpacity="0.5"/>
+
+            <stop offset="60%" stopColor="#6d4c41" stopOpacity="0.7"/>
+
+            <stop offset="100%" stopColor="#000000" stopOpacity="1"/>
+
+          </radialGradient>
+
+          {/* Radial gradient for tennis court - light green theme */}
+
+          <radialGradient id="tennisCircleGradient" cx="50%" cy="50%" r="50%">
+
+            <stop offset="0%" stopColor="#81c784" stopOpacity="0.3"/>
+
+            <stop offset="40%" stopColor="#66bb6a" stopOpacity="0.5"/>
+
+            <stop offset="70%" stopColor="#43a047" stopOpacity="0.7"/>
+
+            <stop offset="100%" stopColor="#000000" stopOpacity="1"/>
+
+          </radialGradient>
+
+          {/* Radial gradient for badminton court - blue/green theme */}
+
+          <radialGradient id="badmintonCircleGradient" cx="50%" cy="50%" r="50%">
+
+            <stop offset="0%" stopColor="#42a5f5" stopOpacity="0.3"/>
+
+            <stop offset="40%" stopColor="#1976d2" stopOpacity="0.5"/>
+
+            <stop offset="70%" stopColor="#0d47a1" stopOpacity="0.7"/>
+
+            <stop offset="100%" stopColor="#000000" stopOpacity="1"/>
+
+          </radialGradient>
+
+          {/* Stadium glow filter */}
+
+          <filter id="stadiumGlow" x="-50%" y="-50%" width="200%" height="200%">
+
+            <feGaussianBlur in="SourceGraphic" stdDeviation="1" result="blur"/>
+
+            <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.1  0 0 0 0 0.2  0 0 0 0 0.1  0 0 0 0.5 0"/>
+
+          </filter>
+
 
           {/* Stand gradients with enhanced color scheme */}
 
@@ -736,6 +934,8 @@ const SportsSeatLayout = () => {
 
         
 
+        
+
         {/* Separator ring between upper and lower stands */}
 
         <circle cx={centerX} cy={centerY} r="35.5" fill="none" stroke="rgba(255, 255, 255, 0.3)" strokeWidth="0.3" strokeDasharray="2,1"/>
@@ -916,23 +1116,117 @@ const SportsSeatLayout = () => {
 
         {/* Field rendered on top of all stands */}
 
-        {/* Stadium ground with image pattern */}
+        {/* Stadium ground with image pattern - Cricket, Football, or Basketball based on event sport */}
 
-        <ellipse 
+        {(isRectangularSport || isTennis || isBadminton) ? (
+          <>
+            {/* Football/Basketball/Tennis/Badminton: Fill inner circle area with gradient glow effect */}
+            <circle 
+              cx={centerX} 
+              cy={centerY} 
+              r={innerRadius} 
+              fill={isBasketball ? "url(#basketballCircleGradient)" : (isTennis ? "url(#tennisCircleGradient)" : (isBadminton ? "url(#badmintonCircleGradient)" : "url(#innerCircleGradient)"))}
+              opacity="0.7"
+              filter="url(#stadiumGlow)"
+            />
 
-          cx={centerX} 
+            {/* Light rays effect for wow factor */}
+            <g opacity="0.4" style={{ mixBlendMode: 'screen' }}>
+              {Array.from({ length: 12 }, (_, i) => {
+                const angle = (i * 30) * (Math.PI / 180)
+                // Use red/orange glow for basketball, green for football/tennis, blue for badminton
+                let glowColor = 'rgba(76, 175, 80, 0.3)'
+                if (isBasketball) glowColor = 'rgba(198, 40, 40, 0.35)'
+                else if (isTennis) glowColor = 'rgba(129, 199, 132, 0.35)'
+                else if (isBadminton) glowColor = 'rgba(66, 165, 245, 0.35)'
+                return (
+                  <line
+                    key={i}
+                    x1={centerX}
+                    y1={centerY}
+                    x2={centerX + innerRadius * 0.9 * Math.cos(angle)}
+                    y2={centerY + innerRadius * 0.9 * Math.sin(angle)}
+                    stroke={glowColor}
+                    strokeWidth="0.2"
+                    strokeLinecap="round"
+                  />
+                )
+              })}
+            </g>
 
-          cy={centerY} 
+            {/* Subtle outer glow ring */}
+            <circle 
+              cx={centerX} 
+              cy={centerY} 
+              r={innerRadius} 
+              fill="none"
+              stroke={isBasketball ? 'rgba(198, 40, 40, 0.3)' : (isTennis ? 'rgba(129, 199, 132, 0.3)' : (isBadminton ? 'rgba(66, 165, 245, 0.3)' : 'rgba(76, 175, 80, 0.25)'))}
+              strokeWidth="0.4"
+              strokeDasharray="4,2"
+              opacity="0.6"
+            />
 
-          rx="24" 
+            {/* Football/Basketball/Tennis/Badminton: Field inscribed in circular stands */}
+            {isCircularSport ? (
+              /* Football/Tennis/Badminton: Fill full circle with image */
+              <circle 
+                cx={centerX} 
+                cy={centerY} 
+                r={innerRadius} 
+                fill={isTennis ? "url(#tennisGroundImage)" : (isBadminton ? "url(#badmintonGroundImage)" : "url(#footballGroundImage)")}
+                opacity="1"
+              />
+            ) : (
+              /* Basketball: Horizontal rectangular field */
+              <rect 
+                x={rectangularFieldX}
+                y={rectangularFieldY}
+                width={rectangularFieldWidth}
+                height={rectangularFieldHeight}
+                fill="url(#basketballGroundImage)"
+                opacity="1"
+              />
+            )}
 
-          ry="24" 
-
-          fill="url(#stadiumGroundImage)"
-
-          opacity="1"
-
-        />
+            {/* Field glow effect */}
+            {isCircularSport ? (
+              /* Football/Tennis/Badminton: Circle glow */
+              <circle 
+                cx={centerX} 
+                cy={centerY} 
+                r={innerRadius} 
+                fill="none"
+                stroke={isTennis ? 'rgba(129, 199, 132, 0.5)' : (isBadminton ? 'rgba(66, 165, 245, 0.5)' : 'rgba(76, 175, 80, 0.5)')}
+                strokeWidth="0.4"
+                opacity="0.7"
+                filter="url(#stadiumGlow)"
+              />
+            ) : (
+              /* Basketball: Rectangle glow */
+              <rect 
+                x={rectangularFieldX - 0.5}
+                y={rectangularFieldY - 0.5}
+                width={rectangularFieldWidth + 1}
+                height={rectangularFieldHeight + 1}
+                fill="none"
+                stroke="rgba(198, 40, 40, 0.6)"
+                strokeWidth="0.4"
+                opacity="0.7"
+                filter="url(#stadiumGlow)"
+              />
+            )}
+          </>
+        ) : (
+          /* Cricket: Circular ground */
+          <ellipse 
+            cx={centerX} 
+            cy={centerY} 
+            rx="24" 
+            ry="24" 
+            fill="url(#stadiumGroundImage)"
+            opacity="1"
+          />
+        )}
 
       </svg>
 
@@ -972,15 +1266,15 @@ const SportsSeatLayout = () => {
 
               </h3>
 
-              <span className={`px-2.5 py-1 rounded-md text-xs font-semibold ${
-
-                stand.tier === 'Premium' 
-
-                  ? 'bg-primary/20 text-primary border border-primary/50 shadow-sm' 
-
-                  : 'bg-purple-500/20 text-purple-400 border border-purple-500/50 shadow-sm'
-
-              }`}>
+              <span 
+                className="px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm"
+                style={{
+                  backgroundColor: stand.lightColor + '20',
+                  color: stand.lightColor,
+                  borderColor: stand.lightColor + '50',
+                  border: `1px solid ${stand.lightColor}50`
+                }}
+              >
 
                 {stand.tier}
 
@@ -1226,13 +1520,13 @@ const SportsSeatLayout = () => {
 
               <div>
 
-                <p className='text-[10px] font-semibold text-primary mb-2 uppercase tracking-wide'>Premium Stands</p>
+                <p className='text-[10px] font-semibold mb-2 uppercase tracking-wide text-gray-300'>Premium Stands</p>
 
                 <div className='space-y-2'>
 
                   {stands.filter(s => s.tier === 'Premium').map(stand => (
 
-                    <div key={stand.id} className='flex items-center gap-2 p-2 rounded-lg hover:bg-primary/10 transition-all cursor-pointer' onClick={() => handleStandClick(stand)}>
+                    <div key={stand.id} className='flex items-center gap-2 p-2 rounded-lg transition-all cursor-pointer' style={{ '--hover-bg': stand.color + '20' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = stand.color + '20'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'} onClick={() => handleStandClick(stand)}>
 
                       <div 
 
@@ -1266,13 +1560,13 @@ const SportsSeatLayout = () => {
 
               <div className='pt-2 border-t border-gray-700/50'>
 
-                <p className='text-[10px] font-semibold text-purple-400 mb-2 uppercase tracking-wide'>Standard Stands</p>
+                <p className='text-[10px] font-semibold mb-2 uppercase tracking-wide text-gray-300'>Standard Stands</p>
 
                 <div className='space-y-2'>
 
                   {stands.filter(s => s.tier === 'Standard').map(stand => (
 
-                    <div key={stand.id} className='flex items-center gap-2 p-2 rounded-lg hover:bg-purple-500/10 transition-all cursor-pointer' onClick={() => handleStandClick(stand)}>
+                    <div key={stand.id} className='flex items-center gap-2 p-2 rounded-lg transition-all cursor-pointer' style={{ '--hover-bg': stand.color + '20' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = stand.color + '20'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'} onClick={() => handleStandClick(stand)}>
 
                       <div 
 
@@ -1380,21 +1674,37 @@ const SportsSeatLayout = () => {
 
             </div>
 
-            <div className="flex items-center gap-4 text-[10px] text-gray-500">
+            <div className="flex items-center gap-4 text-[10px] text-gray-500 flex-wrap">
 
               <div className="flex items-center gap-1.5">
 
-                <div className="w-2.5 h-2.5 rounded bg-primary shadow-sm" style={{ boxShadow: `0 0 6px ${'#F84565'}60` }}></div>
+                <div className="w-2.5 h-2.5 rounded shadow-sm" style={{ backgroundColor: getDirectionColors.north.color, boxShadow: `0 0 6px ${getDirectionColors.north.color}60` }}></div>
 
-                <span className="font-medium">Premium</span>
+                <span className="font-medium">North</span>
 
               </div>
 
               <div className="flex items-center gap-1.5">
 
-                <div className="w-2.5 h-2.5 rounded bg-purple-500 shadow-sm" style={{ boxShadow: `0 0 6px ${'#8B5CF6'}60` }}></div>
+                <div className="w-2.5 h-2.5 rounded shadow-sm" style={{ backgroundColor: getDirectionColors.south.color, boxShadow: `0 0 6px ${getDirectionColors.south.color}60` }}></div>
 
-                <span className="font-medium">Standard</span>
+                <span className="font-medium">South</span>
+
+              </div>
+
+              <div className="flex items-center gap-1.5">
+
+                <div className="w-2.5 h-2.5 rounded shadow-sm" style={{ backgroundColor: getDirectionColors.east.color, boxShadow: `0 0 6px ${getDirectionColors.east.color}60` }}></div>
+
+                <span className="font-medium">East</span>
+
+              </div>
+
+              <div className="flex items-center gap-1.5">
+
+                <div className="w-2.5 h-2.5 rounded shadow-sm" style={{ backgroundColor: getDirectionColors.west.color, boxShadow: `0 0 6px ${getDirectionColors.west.color}60` }}></div>
+
+                <span className="font-medium">West</span>
 
               </div>
 

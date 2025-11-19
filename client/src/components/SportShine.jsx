@@ -16,7 +16,7 @@ const sportCategories = [
 ];
 
 const SportShine = () => {
-  const { axios } = useAppContext();
+  const { axios, selectedLocation } = useAppContext();
   const [selectedSport, setSelectedSport] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [upcomingEvents, setUpcomingEvents] = useState([]);
@@ -44,7 +44,9 @@ const SportShine = () => {
     const fetchEvents = async () => {
       setLoading(true);
       try {
-        const { data } = await axios.get('/api/sports/all-events');
+        const { data } = await axios.get('/api/sports/all-events', { 
+          params: { location: selectedLocation } 
+        });
         if (data.success && data.events) {
           // Convert database events to match the expected format
           const formattedEvents = data.events.map(event => ({
@@ -78,7 +80,7 @@ const SportShine = () => {
     };
     
     fetchEvents();
-  }, [selectedSport, axios]);
+  }, [selectedSport, selectedLocation, axios]);
 
   const filteredEvents = useMemo(() => {
     if (!Array.isArray(upcomingEvents)) {
@@ -224,9 +226,19 @@ const SportShine = () => {
                         className='px-3 py-1.5 rounded-md bg-primary hover:bg-primary-dull transition'
                         onClick={async () => {
                           try {
-                            // If event has showDateTime, it's from database - navigate directly to seat layout
+                            const sport = team.strSport?.toLowerCase()
+                            const isChess = sport === 'chess'
+                            const isRunning = sport === 'running'
+                            
+                            // If event has showDateTime, it's from database - navigate to appropriate booking page
                             if (team.showDateTime && team.idTeam) {
-                              window.location.href = `/sports/seat/${team.idTeam}`;
+                              if (isChess) {
+                                window.location.href = `/sports/chess/${team.idTeam}`;
+                              } else if (isRunning) {
+                                window.location.href = `/sports/running/${team.idTeam}`;
+                              } else {
+                                window.location.href = `/sports/seat/${team.idTeam}`;
+                              }
                             } else {
                               // Fallback: create a new event instance for hardcoded data
                               const payload = {
@@ -238,7 +250,13 @@ const SportShine = () => {
                               };
                               const { data } = await axios.post('/api/sports/event', payload);
                               if (data.success) {
-                                window.location.href = `/sports/seat/${data.event._id}`
+                                if (isChess) {
+                                  window.location.href = `/sports/chess/${data.event._id}`
+                                } else if (isRunning) {
+                                  window.location.href = `/sports/running/${data.event._id}`
+                                } else {
+                                  window.location.href = `/sports/seat/${data.event._id}`
+                                }
                               }
                             }
                           } catch (e) {

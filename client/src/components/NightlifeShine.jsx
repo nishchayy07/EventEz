@@ -8,7 +8,7 @@ import { useAppContext } from '../context/AppContext';
 
 const NightlifeShine = () => {
   const navigate = useNavigate();
-  const { axios } = useAppContext();
+  const { axios, selectedLocation } = useAppContext();
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [nightlifeCategories, setNightlifeCategories] = useState([]);
@@ -41,7 +41,9 @@ const NightlifeShine = () => {
         setNightlifeCategories(defaultCategories);
 
         // Fetch events from API
-        const { data } = await axios.get('/api/nightlife/events');
+        const { data } = await axios.get('/api/nightlife/events', { 
+          params: { location: selectedLocation } 
+        });
         if (data.success && data.events) {
           // Map API data to match frontend format
           const mappedEvents = data.events.map(event => ({
@@ -74,7 +76,7 @@ const NightlifeShine = () => {
     };
 
     fetchNightlifeData();
-  }, [axios]);
+  }, [axios, selectedLocation]);
 
   const filteredEvents = useMemo(() => {
     if (!Array.isArray(upcomingEvents)) return [];

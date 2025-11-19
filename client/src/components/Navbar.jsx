@@ -11,26 +11,12 @@ const Navbar = () => {
 
  const [isOpen, setIsOpen] = useState(false)
  const [isLocationOpen, setIsLocationOpen] = useState(false)
- const [selectedCity, setSelectedCity] = useState('Chandigarh')
  const {user} = useUser()
  const {openSignIn} = useClerk()
 
  const navigate = useNavigate()
 
- const {favoriteMovies} = useAppContext()
-
- // Load saved location from localStorage on component mount
- useEffect(() => {
-   const savedLocation = localStorage.getItem('userLocation');
-   if (savedLocation) {
-     try {
-       const locationData = JSON.parse(savedLocation);
-       setSelectedCity(locationData.city);
-     } catch (error) {
-       console.error('Error loading saved location:', error);
-     }
-   }
- }, []);
+ const {favoriteMovies, selectedLocation, updateLocation} = useAppContext()
 
   return (
     <>
@@ -48,7 +34,7 @@ const Navbar = () => {
         >
           <MapPin className='w-4 h-4 text-primary' />
           <div className='text-left'>
-            <p className='text-white text-sm font-semibold'>{selectedCity}</p>
+            <p className='text-white text-sm font-semibold'>{selectedLocation}</p>
           </div>
         </button>
       </div>
@@ -91,8 +77,11 @@ const Navbar = () => {
     <LocationSelector 
       isOpen={isLocationOpen}
       onClose={() => setIsLocationOpen(false)}
-      selectedCity={selectedCity}
-      onSelectCity={setSelectedCity}
+      selectedCity={selectedLocation}
+      onSelectCity={(city) => {
+        updateLocation(city);
+        setIsLocationOpen(false);
+      }}
     />
     </>
   )

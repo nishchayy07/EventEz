@@ -13,6 +13,7 @@ export const AppProvider = ({ children })=>{
     const [isAdmin, setIsAdmin] = useState(false)
     const [shows, setShows] = useState([])
     const [favoriteMovies, setFavoriteMovies] = useState([])
+    const [selectedLocation, setSelectedLocation] = useState('Chandigarh') // Default location
 
     const image_base_url = import.meta.env.VITE_TMDB_IMAGE_BASE_URL;
 
@@ -20,6 +21,19 @@ export const AppProvider = ({ children })=>{
     const {getToken} = useAuth()
     const location = useLocation()
     const navigate = useNavigate()
+
+    // Load saved location from localStorage on mount
+    useEffect(() => {
+        const savedLocation = localStorage.getItem('userLocation');
+        if (savedLocation) {
+            try {
+                const locationData = JSON.parse(savedLocation);
+                setSelectedLocation(locationData.city || 'Chandigarh');
+            } catch (error) {
+                console.error('Error loading saved location:', error);
+            }
+        }
+    }, [])
 
     const fetchIsAdmin = async ()=>{
         try {
@@ -73,11 +87,28 @@ export const AppProvider = ({ children })=>{
         }
     },[user])
 
+    const updateLocation = (city) => {
+        setSelectedLocation(city);
+        // Save to localStorage
+        const savedLocation = localStorage.getItem('userLocation');
+        let locationData = {};
+        if (savedLocation) {
+            try {
+                locationData = JSON.parse(savedLocation);
+            } catch (error) {
+                console.error('Error parsing saved location:', error);
+            }
+        }
+        locationData.city = city;
+        localStorage.setItem('userLocation', JSON.stringify(locationData));
+    }
+
     const value = {
         axios,
         fetchIsAdmin,
         user, getToken, navigate, isAdmin, shows, 
-        favoriteMovies, fetchFavoriteMovies, image_base_url
+        favoriteMovies, fetchFavoriteMovies, image_base_url,
+        selectedLocation, updateLocation
     }
 
     return (

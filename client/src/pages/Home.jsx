@@ -12,7 +12,7 @@ const SectionHeader = ({ title }) => (
 )
 
 const Home = () => {
-  const { axios, shows, image_base_url } = useAppContext()
+  const { axios, shows, image_base_url, selectedLocation } = useAppContext()
   const navigate = useNavigate()
   const [sportsEvents, setSportsEvents] = useState([])
   const [nightlifeEvents, setNightlifeEvents] = useState([])
@@ -22,8 +22,8 @@ const Home = () => {
     const fetchEvents = async () => {
       try {
         const [sportsRes, nightlifeRes] = await Promise.all([
-          axios.get('/api/sports/all-events').catch(() => ({ data: { events: [] } })),
-          axios.get('/api/nightlife/events').catch(() => ({ data: { events: [] } }))
+          axios.get('/api/sports/all-events', { params: { location: selectedLocation } }).catch(() => ({ data: { events: [] } })),
+          axios.get('/api/nightlife/events', { params: { location: selectedLocation } }).catch(() => ({ data: { events: [] } }))
         ])
         
         setSportsEvents(sportsRes.data?.events || [])
@@ -35,7 +35,7 @@ const Home = () => {
       }
     }
     fetchEvents()
-  }, [])
+  }, [selectedLocation, axios])
 
   if (loading) return <Loading />
 

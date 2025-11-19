@@ -65,17 +65,22 @@ export const getOccupiedSeatsForEvent = async (req, res) => {
 export const createSportBooking = async (req, res) => {
     try {
         const { userId } = req.auth();
-        const { eventId, selectedSeats } = req.body;
+        const { eventId, selectedSeats, customAmount } = req.body;
         const { origin } = req.headers;
 
         const event = await SportEvent.findById(eventId);
         if (!event) return res.json({ success: false, message: 'Event not found' });
 
-        // availability
-        const isTaken = selectedSeats.some(seat => event.occupiedSeats?.[seat]);
-        if (isTaken) return res.json({ success: false, message: 'Selected Seats are not available.' });
+        // For chess events, skip seat availability check (no physical seats)
+        const isChess = event.sport?.toLowerCase() === 'chess';
+        if (!isChess) {
+            // availability check for other sports
+            const isTaken = selectedSeats.some(seat => event.occupiedSeats?.[seat]);
+            if (isTaken) return res.json({ success: false, message: 'Selected Seats are not available.' });
+        }
 
-        const amount = event.price * selectedSeats.length;
+        // Use custom amount for chess (ticket-based pricing), otherwise use event price
+        const amount = customAmount || (event.price * selectedSeats.length);
 
         const booking = await Booking.create({
             user: userId,
@@ -85,9 +90,12 @@ export const createSportBooking = async (req, res) => {
             bookedSeats: selectedSeats
         });
 
-        selectedSeats.forEach(seat => { event.occupiedSeats[seat] = userId; });
-        event.markModified('occupiedSeats');
-        await event.save();
+        // Only mark seats as occupied for non-chess events
+        if (!isChess) {
+            selectedSeats.forEach(seat => { event.occupiedSeats[seat] = userId; });
+            event.markModified('occupiedSeats');
+            await event.save();
+        }
 
         const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
         const line_items = [{
@@ -141,7 +149,17 @@ export const createSportEvent = async (req, res) => {
 // Get all sport events from database
 export const getAllSportEvents = async (req, res) => {
     try {
-        const events = await SportEvent.find({ showDateTime: { $gte: new Date() } })
+        const { location } = req.query; // Get location from query params
+        
+        let query = { showDateTime: { $gte: new Date() } };
+        
+        // If location is provided, filter by venue containing the location
+        if (location) {
+            // Case-insensitive search for location in venue field
+            query.venue = { $regex: location, $options: 'i' };
+        }
+        
+        const events = await SportEvent.find(query)
             .sort({ showDateTime: 1 })
             .limit(20);
         

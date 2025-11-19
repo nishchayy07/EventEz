@@ -19,6 +19,8 @@ import { SignIn } from '@clerk/clerk-react'
 import Loading from './components/Loading'
 import Sports from './pages/Sports'
 import SportsSeatLayout from './pages/SportsSeatLayout'
+import ChessBooking from './pages/ChessBooking'
+import RunningBooking from './pages/RunningBooking'
 import Nightlife from './pages/Nightlife'
 import NowShowing from './pages/NowShowing'
 import Chatbot from './components/Chatbot'
@@ -39,6 +41,8 @@ const App = () => {
         <Route path='/' element={<Home/>} />
         <Route path='/sports' element={<Sports />} />
         <Route path='/sports/seat/:id' element={<SportsSeatLayout />} />
+        <Route path='/sports/chess/:id' element={<ChessBooking />} />
+        <Route path='/sports/running/:id' element={<RunningBooking />} />
         <Route path='/nightlife' element={<Nightlife />} />
         <Route path='/nightlife/:id' element={<EventDetails />} />
         <Route path='/movies' element={<Movies />} />
