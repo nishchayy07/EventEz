@@ -25,12 +25,9 @@ const AddShows = () => {
     const [addingShow, setAddingShow] = useState(false)
     
     // Sports state
-    const [sportsData, setSportsData] = useState([]);
-    const [selectedSport, setSelectedSport] = useState(null);
+    const [mockSportEvents, setMockSportEvents] = useState([]);
+    const [selectedSportEvent, setSelectedSportEvent] = useState(null);
     const [sportEventData, setSportEventData] = useState({
-        title: '',
-        venue: '',
-        image: '',
         showDateTime: '',
         price: ''
     });
@@ -74,14 +71,17 @@ const AddShows = () => {
         }
     };
     
-    const fetchSportsData = async () => {
+    const fetchMockSportEvents = async () => {
         try {
-            const { data } = await axios.get('/api/sports');
-            if (data.sports) {
-                setSportsData(data.sports);
+            const { data } = await axios.get('/api/sports/mock-events');
+            if (data.success) {
+                setMockSportEvents(data.events);
+                console.log('Mock sport events loaded:', data.events?.length);
+            } else {
+                console.error('Failed to fetch mock sport events:', data.message);
             }
         } catch (error) {
-            console.error('Error fetching sports:', error);
+            console.error('Error fetching mock sport events:', error);
         }
     };
     
@@ -168,17 +168,19 @@ const AddShows = () => {
                     toast.error(data.message)
                 }
             } else if (activeTab === 'sports') {
-                if (!selectedSport || !sportEventData.title || !sportEventData.venue || !sportEventData.showDateTime || !sportEventData.price) {
+                if (!selectedSportEvent || !sportEventData.showDateTime || !sportEventData.price) {
                     toast.error('Missing required fields');
                     setAddingShow(false);
                     return;
                 }
                 
+                const selectedEvent = mockSportEvents.find(e => e.id === selectedSportEvent);
+                
                 const payload = {
-                    title: sportEventData.title,
-                    sport: selectedSport,
-                    venue: sportEventData.venue,
-                    image: sportEventData.image,
+                    title: selectedEvent.title,
+                    sport: selectedEvent.sport,
+                    venue: selectedEvent.venue,
+                    image: selectedEvent.image,
                     showDateTime: sportEventData.showDateTime,
                     price: Number(sportEventData.price)
                 };
@@ -189,8 +191,8 @@ const AddShows = () => {
                 
                 if (data.success) {
                     toast.success(data.message);
-                    setSelectedSport(null);
-                    setSportEventData({ title: '', venue: '', image: '', showDateTime: '', price: '' });
+                    setSelectedSportEvent(null);
+                    setSportEventData({ showDateTime: '', price: '' });
                 } else {
                     toast.error(data.message);
                 }
@@ -241,7 +243,7 @@ const AddShows = () => {
             if (activeTab === 'movies') {
                 fetchNowPlayingMovies();
             } else if (activeTab === 'sports') {
-                fetchSportsData();
+                fetchMockSportEvents();
             } else if (activeTab === 'nightlife') {
                 fetchNightlifeCategories();
                 fetchMockNightlifeEvents();
@@ -362,91 +364,100 @@ const AddShows = () => {
       )}
 
       {/* Sports Tab */}
-      {activeTab === 'sports' && (
+      {activeTab === 'sports' && mockSportEvents.length > 0 && (
         <>
-          <p className="mt-10 text-lg font-medium">Select Sport</p>
+          <p className="mt-10 text-lg font-medium">Available Mock Sport Events</p>
           <div className="overflow-x-auto pb-4">
-            <div className="group flex flex-wrap gap-4 mt-4">
-              {sportsData.map((sport) => (
-                <div 
-                  key={sport.id} 
-                  className={`relative max-w-40 cursor-pointer group-hover:not-hover:opacity-40 hover:-translate-y-1 transition duration-300`}
-                  onClick={() => setSelectedSport(sport.name)}
+            <div className="group flex gap-4 mt-4 w-max">
+              {mockSportEvents.map((event) => (
+                <div
+                  key={event.id}
+                  onClick={() => setSelectedSportEvent(event.id)}
+                  className="relative max-w-40 cursor-pointer group-hover:not-hover:opacity-40 hover:-translate-y-1 transition duration-300"
                 >
                   <div className="relative rounded-lg overflow-hidden">
-                    <img src={sport.image} alt={sport.name} className="w-full h-48 object-cover brightness-90" />
+                    <img
+                      src={event.image || 'https://via.placeholder.com/300x450'}
+                      alt={event.title}
+                      className="w-full h-56 object-cover brightness-90"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-2">
+                      <p className="text-xs text-white font-medium line-clamp-2">{event.title}</p>
+                      <p className="text-xs text-gray-300">{event.sport}</p>
+                    </div>
                   </div>
-                  {selectedSport === sport.name && (
+                  {selectedSportEvent === event.id && (
                     <div className="absolute top-2 right-2 flex items-center justify-center bg-primary h-6 w-6 rounded">
                       <CheckIcon className="w-4 h-4 text-white" strokeWidth={2.5} />
                     </div>
                   )}
-                  <p className="font-medium truncate mt-2">{sport.name}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Sport Event Details */}
-          <div className="mt-8 space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Event Title</label>
-              <input 
-                type="text" 
-                value={sportEventData.title}
-                onChange={(e) => setSportEventData({...sportEventData, title: e.target.value})}
-                placeholder="Enter event title"
-                className="w-full border border-gray-600 px-3 py-2 rounded-md outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Venue</label>
-              <input 
-                type="text" 
-                value={sportEventData.venue}
-                onChange={(e) => setSportEventData({...sportEventData, venue: e.target.value})}
-                placeholder="Enter venue"
-                className="w-full border border-gray-600 px-3 py-2 rounded-md outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Image URL (optional)</label>
-              <input 
-                type="text" 
-                value={sportEventData.image}
-                onChange={(e) => setSportEventData({...sportEventData, image: e.target.value})}
-                placeholder="Enter image URL"
-                className="w-full border border-gray-600 px-3 py-2 rounded-md outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Event Date & Time</label>
-              <input 
-                type="datetime-local" 
-                value={sportEventData.showDateTime}
-                onChange={(e) => setSportEventData({...sportEventData, showDateTime: e.target.value})}
-                className="w-full border border-gray-600 px-3 py-2 rounded-md outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Ticket Price</label>
-              <div className="inline-flex items-center gap-2 border border-gray-600 px-3 py-2 rounded-md">
-                <p className="text-gray-400 text-sm">{currency}</p>
-                <input 
-                  min={0} 
-                  type="number" 
-                  value={sportEventData.price}
-                  onChange={(e) => setSportEventData({...sportEventData, price: e.target.value})}
-                  placeholder="Enter price"
-                  className="outline-none"
-                />
+          {selectedSportEvent && (
+            <>
+              <div className="mt-8 border border-gray-600 p-4 rounded-lg bg-gray-800/30">
+                <h3 className="text-lg font-medium mb-4">Selected Event Details</h3>
+                <div className="space-y-3">
+                  {(() => {
+                    const selected = mockSportEvents.find(e => e.id === selectedSportEvent);
+                    return (
+                      <>
+                        <div>
+                          <p className="text-sm text-gray-400">Title</p>
+                          <p className="font-medium">{selected?.title}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-400">Sport</p>
+                          <p className="font-medium">{selected?.sport}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-400">Venue</p>
+                          <p className="font-medium">{selected?.venue}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-400">Default Price</p>
+                          <p className="font-medium">{currency} {selected?.price}</p>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
               </div>
-            </div>
-          </div>
-          
-          <button onClick={handleSubmit} disabled={addingShow} className="bg-primary text-white px-8 py-2 mt-6 rounded hover:bg-primary/90 transition-all cursor-pointer">
-            Add Sport Event
-          </button>
+
+              <div className="mt-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Event Date & Time</label>
+                  <input 
+                    type="datetime-local" 
+                    value={sportEventData.showDateTime}
+                    onChange={(e) => setSportEventData({...sportEventData, showDateTime: e.target.value})}
+                    className="w-full border border-gray-600 px-3 py-2 rounded-md outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Ticket Price</label>
+                  <div className="inline-flex items-center gap-2 border border-gray-600 px-3 py-2 rounded-md">
+                    <p className="text-gray-400 text-sm">{currency}</p>
+                    <input 
+                      min={0} 
+                      type="number" 
+                      value={sportEventData.price}
+                      onChange={(e) => setSportEventData({...sportEventData, price: e.target.value})}
+                      placeholder={mockSportEvents.find(e => e.id === selectedSportEvent)?.price || "Enter price"}
+                      className="outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <button onClick={handleSubmit} disabled={addingShow} className="bg-primary text-white px-8 py-2 mt-6 rounded hover:bg-primary/90 transition-all cursor-pointer">
+                Add Sport Event
+              </button>
+            </>
+          )}
         </>
       )}
 
@@ -545,7 +556,7 @@ const AddShows = () => {
       )}
       
       {activeTab === 'movies' && nowPlayingMovies.length === 0 && <Loading />}
-      {activeTab === 'sports' && sportsData.length === 0 && <Loading />}
+      {activeTab === 'sports' && mockSportEvents.length === 0 && <Loading />}
       {activeTab === 'nightlife' && mockNightlifeEvents.length === 0 && <Loading />}
     </>
   )

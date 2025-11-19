@@ -21,8 +21,8 @@ const nightlifeRouter = express.Router();
 nightlifeRouter.get('/categories', getNightlifeCategories);
 nightlifeRouter.get('/mock-events', getMockNightlifeEvents);
 nightlifeRouter.get('/events', getAllNightlifeEvents);
-nightlifeRouter.get('/events/:category', getNightlifeEventsByCategory);
 nightlifeRouter.get('/event/:id', getNightlifeEvent);
+nightlifeRouter.get('/events/:category', getNightlifeEventsByCategory);
 nightlifeRouter.get('/seats/:eventId', getOccupiedSeatsForNightlife);
 
 // Booking route (requires auth)
