@@ -176,3 +176,124 @@ export const createSportEvent = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error' });
     }
 }
+
+// Hardcoded sports events as fallback
+const hardcodedSportEvents = [
+    {
+        _id: '1',
+        title: 'India vs Australia - Cricket World Cup Final',
+        sport: 'Cricket',
+        venue: 'Narendra Modi Stadium, Ahmedabad',
+        showDateTime: new Date('2025-11-25T14:00:00'),
+        price: 2500,
+        image: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=800',
+    },
+    {
+        _id: '2',
+        title: 'Mumbai Indians vs Chennai Super Kings - IPL',
+        sport: 'Cricket',
+        venue: 'Wankhede Stadium, Mumbai',
+        showDateTime: new Date('2025-11-28T19:30:00'),
+        price: 1500,
+        image: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800',
+    },
+    {
+        _id: '3',
+        title: 'Real Madrid vs Barcelona - El Clasico',
+        sport: 'Football',
+        venue: 'Santiago Bernabeu, Madrid',
+        showDateTime: new Date('2025-12-01T20:00:00'),
+        price: 5000,
+        image: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=800',
+    },
+    {
+        _id: '4',
+        title: 'Los Angeles Lakers vs Boston Celtics',
+        sport: 'Basketball',
+        venue: 'Crypto.com Arena, LA',
+        showDateTime: new Date('2025-11-30T19:00:00'),
+        price: 3000,
+        image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800',
+    },
+    {
+        _id: '5',
+        title: 'Novak Djokovic vs Carlos Alcaraz - ATP Finals',
+        sport: 'Tennis',
+        venue: 'O2 Arena, London',
+        showDateTime: new Date('2025-12-05T15:00:00'),
+        price: 2000,
+        image: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=800',
+    },
+    {
+        _id: '6',
+        title: 'Manchester United vs Liverpool - Premier League',
+        sport: 'Football',
+        venue: 'Old Trafford, Manchester',
+        showDateTime: new Date('2025-11-26T17:30:00'),
+        price: 4000,
+        image: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800',
+    },
+    {
+        _id: '7',
+        title: 'New York Yankees vs Boston Red Sox',
+        sport: 'Baseball',
+        venue: 'Yankee Stadium, New York',
+        showDateTime: new Date('2025-12-10T19:00:00'),
+        price: 1800,
+        image: 'https://images.unsplash.com/photo-1566577739112-5180d4bf9390?w=800',
+    },
+    {
+        _id: '8',
+        title: 'India vs Pakistan - Asia Cup T20',
+        sport: 'Cricket',
+        venue: 'Dubai International Stadium',
+        showDateTime: new Date('2025-12-15T18:00:00'),
+        price: 3500,
+        image: 'https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?w=800',
+    },
+];
+
+// Get all sport events from database
+export const getAllSportEvents = async (req, res) => {
+    try {
+        const events = await SportEvent.find({ showDateTime: { $gte: new Date() } })
+            .sort({ showDateTime: 1 })
+            .limit(20);
+        
+        // If no events in database, return hardcoded events
+        if (events.length === 0) {
+            return res.json({ success: true, events: hardcodedSportEvents });
+        }
+        
+        res.json({ success: true, events });
+    } catch (error) {
+        console.error('Error fetching sport events:', error);
+        res.status(500).json({ success: false, message: 'Failed to fetch sport events.' });
+    }
+};
+
+// Add sport event (admin)
+export const addSportEvent = async (req, res) => {
+    try {
+        const { title, sport, venue, image, showDateTime, price } = req.body;
+
+        if (!title || !sport || !venue || !showDateTime || !price) {
+            return res.json({ success: false, message: 'Missing required fields' });
+        }
+
+        const event = await SportEvent.create({
+            title,
+            sport,
+            venue,
+            image,
+            showDateTime: new Date(showDateTime),
+            price,
+            occupiedSeats: {}
+        });
+
+        res.json({ success: true, message: 'Sport event added successfully', event });
+    } catch (error) {
+        console.error('Error adding sport event:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}

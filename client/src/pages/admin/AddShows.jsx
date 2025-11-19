@@ -12,12 +12,40 @@ const AddShows = () => {
     const {axios, getToken, user, image_base_url} = useAppContext()
 
     const currency = import.meta.env.VITE_CURRENCY
+    
+    // Tab state
+    const [activeTab, setActiveTab] = useState('movies'); // 'movies', 'sports', 'nightlife'
+    
+    // Movies state
     const [nowPlayingMovies, setNowPlayingMovies] = useState([]);
     const [selectedMovie, setSelectedMovie] = useState(null);
     const [dateTimeSelection, setDateTimeSelection] = useState({});
     const [dateTimeInput, setDateTimeInput] = useState("");
     const [showPrice, setShowPrice] = useState("");
     const [addingShow, setAddingShow] = useState(false)
+    
+    // Sports state
+    const [sportsData, setSportsData] = useState([]);
+    const [selectedSport, setSelectedSport] = useState(null);
+    const [sportEventData, setSportEventData] = useState({
+        title: '',
+        venue: '',
+        image: '',
+        showDateTime: '',
+        price: ''
+    });
+    
+    // Nightlife state
+    const [nightlifeCategories, setNightlifeCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [nightlifeEventData, setNightlifeEventData] = useState({
+        title: '',
+        venue: '',
+        description: '',
+        image: '',
+        showDateTime: '',
+        price: ''
+    });
 
 
      const fetchNowPlayingMovies = async () => {
@@ -26,9 +54,36 @@ const AddShows = () => {
                 headers: { Authorization: `Bearer ${await getToken()}` }})
                 if(data.success){
                     setNowPlayingMovies(data.movies)
+                    console.log('Movies loaded:', data.movies?.length)
+                } else {
+                    console.error('Failed to fetch movies:', data.message)
+                    toast.error(data.message || 'Failed to load movies')
                 }
         } catch (error) {
             console.error('Error fetching movies:', error)
+            toast.error('Error loading movies. Check if you are logged in as admin.')
+        }
+    };
+    
+    const fetchSportsData = async () => {
+        try {
+            const { data } = await axios.get('/api/sports');
+            if (data.sports) {
+                setSportsData(data.sports);
+            }
+        } catch (error) {
+            console.error('Error fetching sports:', error);
+        }
+    };
+    
+    const fetchNightlifeCategories = async () => {
+        try {
+            const { data } = await axios.get('/api/nightlife/categories');
+            if (data.success) {
+                setNightlifeCategories(data.categories);
+            }
+        } catch (error) {
+            console.error('Error fetching nightlife categories:', error);
         }
     };
 
@@ -64,27 +119,86 @@ const AddShows = () => {
         try {
             setAddingShow(true)
 
-            if(!selectedMovie || Object.keys(dateTimeSelection).length === 0 || !showPrice){
-                return toast('Missing required fields');
-            }
+            if (activeTab === 'movies') {
+                if(!selectedMovie || Object.keys(dateTimeSelection).length === 0 || !showPrice){
+                    toast.error('Missing required fields');
+                    setAddingShow(false);
+                    return;
+                }
 
-            const showsInput = Object.entries(dateTimeSelection).map(([date, time])=> ({date, time}));
+                const showsInput = Object.entries(dateTimeSelection).map(([date, time])=> ({date, time}));
 
-            const payload = {
-                movieId: selectedMovie,
-                showsInput,
-                showPrice: Number(showPrice)
-            }
+                const payload = {
+                    movieId: selectedMovie,
+                    showsInput,
+                    showPrice: Number(showPrice)
+                }
 
-            const { data } = await axios.post('/api/show/add', payload, {headers: { Authorization: `Bearer ${await getToken()}` }})
+                const { data } = await axios.post('/api/show/add', payload, {headers: { Authorization: `Bearer ${await getToken()}` }})
 
-            if(data.success){
-                toast.success(data.message)
-                setSelectedMovie(null)
-                setDateTimeSelection({})
-                setShowPrice("")
-            }else{
-                toast.error(data.message)
+                if(data.success){
+                    toast.success(data.message)
+                    setSelectedMovie(null)
+                    setDateTimeSelection({})
+                    setShowPrice("")
+                }else{
+                    toast.error(data.message)
+                }
+            } else if (activeTab === 'sports') {
+                if (!selectedSport || !sportEventData.title || !sportEventData.venue || !sportEventData.showDateTime || !sportEventData.price) {
+                    toast.error('Missing required fields');
+                    setAddingShow(false);
+                    return;
+                }
+                
+                const payload = {
+                    title: sportEventData.title,
+                    sport: selectedSport,
+                    venue: sportEventData.venue,
+                    image: sportEventData.image,
+                    showDateTime: sportEventData.showDateTime,
+                    price: Number(sportEventData.price)
+                };
+                
+                const { data } = await axios.post('/api/sports/add', payload, {
+                    headers: { Authorization: `Bearer ${await getToken()}` }
+                });
+                
+                if (data.success) {
+                    toast.success(data.message);
+                    setSelectedSport(null);
+                    setSportEventData({ title: '', venue: '', image: '', showDateTime: '', price: '' });
+                } else {
+                    toast.error(data.message);
+                }
+            } else if (activeTab === 'nightlife') {
+                if (!selectedCategory || !nightlifeEventData.title || !nightlifeEventData.venue || !nightlifeEventData.showDateTime || !nightlifeEventData.price) {
+                    toast.error('Missing required fields');
+                    setAddingShow(false);
+                    return;
+                }
+                
+                const payload = {
+                    title: nightlifeEventData.title,
+                    category: selectedCategory,
+                    venue: nightlifeEventData.venue,
+                    description: nightlifeEventData.description,
+                    image: nightlifeEventData.image,
+                    showDateTime: nightlifeEventData.showDateTime,
+                    price: Number(nightlifeEventData.price)
+                };
+                
+                const { data } = await axios.post('/api/nightlife/add', payload, {
+                    headers: { Authorization: `Bearer ${await getToken()}` }
+                });
+                
+                if (data.success) {
+                    toast.success(data.message);
+                    setSelectedCategory(null);
+                    setNightlifeEventData({ title: '', venue: '', description: '', image: '', showDateTime: '', price: '' });
+                } else {
+                    toast.error(data.message);
+                }
             }
         } catch (error) {
             console.error("Submission error:", error);
@@ -95,13 +209,45 @@ const AddShows = () => {
 
     useEffect(() => {
         if(user){
-            fetchNowPlayingMovies();
+            if (activeTab === 'movies') {
+                fetchNowPlayingMovies();
+            } else if (activeTab === 'sports') {
+                fetchSportsData();
+            } else if (activeTab === 'nightlife') {
+                fetchNightlifeCategories();
+            }
         }
-    }, [user]);
+    }, [user, activeTab]);
 
-  return nowPlayingMovies.length > 0 ? (
+  return (
     <>
       <Title text1="Add" text2="Shows" />
+      
+      {/* Tabs */}
+      <div className="flex gap-4 mt-10 border-b border-gray-600">
+        <button 
+          onClick={() => setActiveTab('movies')}
+          className={`px-6 py-3 font-medium transition-colors ${activeTab === 'movies' ? 'text-primary border-b-2 border-primary' : 'text-gray-400 hover:text-gray-200'}`}
+        >
+          Movies
+        </button>
+        <button 
+          onClick={() => setActiveTab('sports')}
+          className={`px-6 py-3 font-medium transition-colors ${activeTab === 'sports' ? 'text-primary border-b-2 border-primary' : 'text-gray-400 hover:text-gray-200'}`}
+        >
+          Sports
+        </button>
+        <button 
+          onClick={() => setActiveTab('nightlife')}
+          className={`px-6 py-3 font-medium transition-colors ${activeTab === 'nightlife' ? 'text-primary border-b-2 border-primary' : 'text-gray-400 hover:text-gray-200'}`}
+        >
+          Nightlife
+        </button>
+      </div>
+
+      {/* Movies Tab */}
+      {activeTab === 'movies' && nowPlayingMovies.length > 0 && (
+        <>
       <p className="mt-10 text-lg font-medium">Now Playing Movies</p>
       <div className="overflow-x-auto pb-4">
         <div className="group flex flex-wrap gap-4 mt-4 w-max">
@@ -173,8 +319,202 @@ const AddShows = () => {
        <button onClick={handleSubmit} disabled={addingShow} className="bg-primary text-white px-8 py-2 mt-6 rounded hover:bg-primary/90 transition-all cursor-pointer" >
             Add Show
         </button>
+        </>
+      )}
+
+      {/* Sports Tab */}
+      {activeTab === 'sports' && (
+        <>
+          <p className="mt-10 text-lg font-medium">Select Sport</p>
+          <div className="overflow-x-auto pb-4">
+            <div className="group flex flex-wrap gap-4 mt-4">
+              {sportsData.map((sport) => (
+                <div 
+                  key={sport.id} 
+                  className={`relative max-w-40 cursor-pointer group-hover:not-hover:opacity-40 hover:-translate-y-1 transition duration-300`}
+                  onClick={() => setSelectedSport(sport.name)}
+                >
+                  <div className="relative rounded-lg overflow-hidden">
+                    <img src={sport.image} alt={sport.name} className="w-full h-48 object-cover brightness-90" />
+                  </div>
+                  {selectedSport === sport.name && (
+                    <div className="absolute top-2 right-2 flex items-center justify-center bg-primary h-6 w-6 rounded">
+                      <CheckIcon className="w-4 h-4 text-white" strokeWidth={2.5} />
+                    </div>
+                  )}
+                  <p className="font-medium truncate mt-2">{sport.name}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Sport Event Details */}
+          <div className="mt-8 space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Event Title</label>
+              <input 
+                type="text" 
+                value={sportEventData.title}
+                onChange={(e) => setSportEventData({...sportEventData, title: e.target.value})}
+                placeholder="Enter event title"
+                className="w-full border border-gray-600 px-3 py-2 rounded-md outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Venue</label>
+              <input 
+                type="text" 
+                value={sportEventData.venue}
+                onChange={(e) => setSportEventData({...sportEventData, venue: e.target.value})}
+                placeholder="Enter venue"
+                className="w-full border border-gray-600 px-3 py-2 rounded-md outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Image URL (optional)</label>
+              <input 
+                type="text" 
+                value={sportEventData.image}
+                onChange={(e) => setSportEventData({...sportEventData, image: e.target.value})}
+                placeholder="Enter image URL"
+                className="w-full border border-gray-600 px-3 py-2 rounded-md outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Event Date & Time</label>
+              <input 
+                type="datetime-local" 
+                value={sportEventData.showDateTime}
+                onChange={(e) => setSportEventData({...sportEventData, showDateTime: e.target.value})}
+                className="w-full border border-gray-600 px-3 py-2 rounded-md outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Ticket Price</label>
+              <div className="inline-flex items-center gap-2 border border-gray-600 px-3 py-2 rounded-md">
+                <p className="text-gray-400 text-sm">{currency}</p>
+                <input 
+                  min={0} 
+                  type="number" 
+                  value={sportEventData.price}
+                  onChange={(e) => setSportEventData({...sportEventData, price: e.target.value})}
+                  placeholder="Enter price"
+                  className="outline-none"
+                />
+              </div>
+            </div>
+          </div>
+          
+          <button onClick={handleSubmit} disabled={addingShow} className="bg-primary text-white px-8 py-2 mt-6 rounded hover:bg-primary/90 transition-all cursor-pointer">
+            Add Sport Event
+          </button>
+        </>
+      )}
+
+      {/* Nightlife Tab */}
+      {activeTab === 'nightlife' && (
+        <>
+          <p className="mt-10 text-lg font-medium">Select Category</p>
+          <div className="overflow-x-auto pb-4">
+            <div className="group flex flex-wrap gap-4 mt-4">
+              {nightlifeCategories.map((category) => (
+                <div 
+                  key={category.id} 
+                  className={`relative max-w-40 cursor-pointer group-hover:not-hover:opacity-40 hover:-translate-y-1 transition duration-300`}
+                  onClick={() => setSelectedCategory(category.name)}
+                >
+                  <div className="relative rounded-lg overflow-hidden">
+                    <img src={category.image} alt={category.name} className="w-full h-48 object-cover brightness-90" />
+                  </div>
+                  {selectedCategory === category.name && (
+                    <div className="absolute top-2 right-2 flex items-center justify-center bg-primary h-6 w-6 rounded">
+                      <CheckIcon className="w-4 h-4 text-white" strokeWidth={2.5} />
+                    </div>
+                  )}
+                  <p className="font-medium truncate mt-2">{category.name}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Nightlife Event Details */}
+          <div className="mt-8 space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Event Title</label>
+              <input 
+                type="text" 
+                value={nightlifeEventData.title}
+                onChange={(e) => setNightlifeEventData({...nightlifeEventData, title: e.target.value})}
+                placeholder="Enter event title"
+                className="w-full border border-gray-600 px-3 py-2 rounded-md outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Venue</label>
+              <input 
+                type="text" 
+                value={nightlifeEventData.venue}
+                onChange={(e) => setNightlifeEventData({...nightlifeEventData, venue: e.target.value})}
+                placeholder="Enter venue"
+                className="w-full border border-gray-600 px-3 py-2 rounded-md outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Description (optional)</label>
+              <textarea 
+                value={nightlifeEventData.description}
+                onChange={(e) => setNightlifeEventData({...nightlifeEventData, description: e.target.value})}
+                placeholder="Enter event description"
+                className="w-full border border-gray-600 px-3 py-2 rounded-md outline-none"
+                rows="3"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Image URL (optional)</label>
+              <input 
+                type="text" 
+                value={nightlifeEventData.image}
+                onChange={(e) => setNightlifeEventData({...nightlifeEventData, image: e.target.value})}
+                placeholder="Enter image URL"
+                className="w-full border border-gray-600 px-3 py-2 rounded-md outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Event Date & Time</label>
+              <input 
+                type="datetime-local" 
+                value={nightlifeEventData.showDateTime}
+                onChange={(e) => setNightlifeEventData({...nightlifeEventData, showDateTime: e.target.value})}
+                className="w-full border border-gray-600 px-3 py-2 rounded-md outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Ticket Price</label>
+              <div className="inline-flex items-center gap-2 border border-gray-600 px-3 py-2 rounded-md">
+                <p className="text-gray-400 text-sm">{currency}</p>
+                <input 
+                  min={0} 
+                  type="number" 
+                  value={nightlifeEventData.price}
+                  onChange={(e) => setNightlifeEventData({...nightlifeEventData, price: e.target.value})}
+                  placeholder="Enter price"
+                  className="outline-none"
+                />
+              </div>
+            </div>
+          </div>
+          
+          <button onClick={handleSubmit} disabled={addingShow} className="bg-primary text-white px-8 py-2 mt-6 rounded hover:bg-primary/90 transition-all cursor-pointer">
+            Add Nightlife Event
+          </button>
+        </>
+      )}
+      
+      {activeTab === 'movies' && nowPlayingMovies.length === 0 && <Loading />}
+      {activeTab === 'sports' && sportsData.length === 0 && <Loading />}
+      {activeTab === 'nightlife' && nightlifeCategories.length === 0 && <Loading />}
     </>
-  ) : <Loading />
+  )
 }
 
 export default AddShows

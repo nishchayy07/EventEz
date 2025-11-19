@@ -488,25 +488,51 @@ const SportsSeatLayout = () => {
 
         <defs>
 
-          {/* Field gradient */}
+          {/* Cricket stadium ground image pattern */}
 
-          <radialGradient id="fieldGradient" cx="50%" cy="50%">
+          <pattern id="stadiumGroundImage" x="0" y="0" width="1" height="1" patternContentUnits="objectBoundingBox">
 
-            <stop offset="0%" stopColor="#6B8E23" />
+            <image 
 
-            <stop offset="100%" stopColor="#4F6F2F" />
+              href="/stadium-ground.png"
 
-          </radialGradient>
+              x="-0.05" 
 
-          {/* Inner field gradient */}
+              y="-0.05" 
 
-          <radialGradient id="innerFieldGradient" cx="50%" cy="50%">
+              width="1.1" 
 
-            <stop offset="0%" stopColor="#7CB342" />
+              height="1.1" 
 
-            <stop offset="100%" stopColor="#6B8E23" />
+              preserveAspectRatio="xMidYMid slice"
 
-          </radialGradient>
+            />
+
+          </pattern>
+
+          {/* Pitch shadow filter */}
+
+          <filter id="pitchShadow">
+
+            <feGaussianBlur in="SourceAlpha" stdDeviation="0.3"/>
+
+            <feOffset dx="0" dy="0.2" result="offsetblur"/>
+
+            <feComponentTransfer>
+
+              <feFuncA type="linear" slope="0.5"/>
+
+            </feComponentTransfer>
+
+            <feMerge>
+
+              <feMergeNode/>
+
+              <feMergeNode in="SourceGraphic"/>
+
+            </feMerge>
+
+          </filter>
 
           {/* Stand gradients with enhanced color scheme */}
 
@@ -890,21 +916,23 @@ const SportsSeatLayout = () => {
 
         {/* Field rendered on top of all stands */}
 
-        {/* Outer field ellipse (dark green) */}
+        {/* Stadium ground with image pattern */}
 
-        <ellipse cx={centerX} cy={centerY} rx="22" ry="15" fill="url(#fieldGradient)"/>
+        <ellipse 
 
-        
+          cx={centerX} 
 
-        {/* Inner field ellipse (lighter green with dashed border) */}
+          cy={centerY} 
 
-        <ellipse cx={centerX} cy={centerY} rx="18" ry="12" fill="url(#innerFieldGradient)" stroke="#FFFFFF" strokeWidth="0.3" strokeDasharray="1,1"/>
+          rx="24" 
 
-        
+          ry="24" 
 
-        {/* Cricket pitch (brown rectangle) */}
+          fill="url(#stadiumGroundImage)"
 
-        <rect x={centerX - 1.5} y={centerY - 6} width="3" height="12" fill="#8B4513" rx="0.2"/>
+          opacity="1"
+
+        />
 
       </svg>
 
