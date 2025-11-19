@@ -1,6 +1,8 @@
 import Booking from "../models/Booking.js"
 import Show from "../models/Show.js";
 import User from "../models/User.js";
+import NightlifeEvent from "../models/NightlifeEvent.js";
+import SportEvent from "../models/SportEvent.js";
 import { clerkClient } from "@clerk/express";
 
 
@@ -29,6 +31,8 @@ export const getDashboardData = async (req, res) =>{
     try {
         const bookings = await Booking.find({isPaid: true});
         const activeShows = await Show.find({showDateTime: {$gte: new Date()}}).populate('movie');
+        const activeNightlifeEvents = await NightlifeEvent.find({showDateTime: {$gte: new Date()}});
+        const activeSportEvents = await SportEvent.find({date: {$gte: new Date()}});
 
         const totalUser = await User.countDocuments();
 
@@ -36,6 +40,8 @@ export const getDashboardData = async (req, res) =>{
             totalBookings: bookings.length,
             totalRevenue: bookings.reduce((acc, booking)=> acc + booking.amount, 0),
             activeShows,
+            activeNightlifeEvents,
+            activeSportEvents,
             totalUser
         }
 

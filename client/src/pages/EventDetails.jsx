@@ -1,13 +1,62 @@
-import React, { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Music } from 'lucide-react';
+import { useAppContext } from '../context/AppContext';
+import Loading from '../components/Loading';
 
 const EventDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { axios } = useAppContext();
+  const [event, setEvent] = useState(null);
+  const [relatedEvents, setRelatedEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+    
+    const fetchEventDetails = async () => {
+      setLoading(true);
+      try {
+        // Fetch the specific event from database
+        const { data } = await axios.get(`/api/nightlife/event/${id}`);
+        if (data.success && data.event) {
+          setEvent(data.event);
+          
+          // Fetch related events of the same category
+          const relatedData = await axios.get(`/api/nightlife/events/${data.event.category}`);
+          if (relatedData.data.success) {
+            // Filter out current event and limit to 4
+            const related = relatedData.data.events
+              .filter(e => e._id !== id)
+              .slice(0, 4);
+            setRelatedEvents(related);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching event details:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEventDetails();
+  }, [id, axios]);
+
+  if (loading) {
+    return <Loading />;
+  }
+
+  if (!event) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-2">Event Not Found</h2>
+          <p className="text-gray-400">The event you're looking for doesn't exist.</p>
+        </div>
+      </div>
+    );
+  }
 
   const events = [
     {
@@ -277,28 +326,13 @@ const EventDetails = () => {
     // Add all your existing events here
   ];
 
-  const getEvent = () => {
-    return events.find(event => event.id === id) || events[0];
-  };
-
-  const event = getEvent();
-
-  // Get related events of the same category
-  const getRelatedEvents = () => {
-    return events
-      .filter(e => e.category === event.category && e.id !== event.id)
-      .slice(0, 4);
-  };
-
-  const relatedEvents = getRelatedEvents();
-
   return (
     <div className="mt-24 md:mt-28 lg:mt-32 max-w-7xl mx-auto px-4">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 items-start">
         {/* Left Column - Main Image */}
         <div className="relative aspect-video rounded-xl overflow-hidden">
           <img 
-            src={event.landscapeImage} 
+            src={event.landscapeImage && event.landscapeImage.trim() !== '' ? event.landscapeImage : event.image} 
             alt={event.title}
             className="absolute inset-0 w-full h-full object-cover"
           />
@@ -314,7 +348,7 @@ const EventDetails = () => {
           </div>
 
           {/* Artist Image */}
-          {event.artistImage && (
+          {event.artistImage && event.artistImage.trim() !== '' && event.artist && (
             <div className="flex items-center gap-4">
               <div className="relative w-24 h-24 rounded-full overflow-hidden ring-2 ring-primary/20">
                 <img 
@@ -335,7 +369,7 @@ const EventDetails = () => {
               <Calendar className="w-5 h-5 text-primary mr-3" />
               <div>
                 <p className="text-sm text-gray-400">Date & Time</p>
-                <p>{new Date(event.date).toLocaleString('en-US', {
+                <p>{new Date(event.showDateTime || event.date).toLocaleString('en-US', {
                   weekday: 'long',
                   year: 'numeric',
                   month: 'long',
@@ -369,7 +403,19 @@ const EventDetails = () => {
                 <p className="text-sm text-gray-400">Ticket Price</p>
                 <p className="text-2xl font-bold text-primary">{event.price}</p>
               </div>
-              <button className="px-6 py-3 bg-primary hover:bg-primary-dull rounded-lg transition">
+              <button 
+                onClick={() => {
+                  // Categories that use seat selection layout
+                  const seatCategories = ['Comedy Shows', 'Qawali Night', 'Theatre Shows'];
+                  
+                  if (seatCategories.includes(event.category)) {
+                    navigate(`/nightlife/${id}/seats`);
+                  } else {
+                    navigate(`/nightlife/${id}/tickets`);
+                  }
+                }}
+                className="px-6 py-3 bg-primary hover:bg-primary-dull rounded-lg transition"
+              >
                 Book Tickets
               </button>
             </div>
@@ -404,7 +450,7 @@ const EventDetails = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {relatedEvents.map(relatedEvent => (
             <div 
-              key={relatedEvent.id} 
+              key={relatedEvent._id} 
               className="group rounded-xl overflow-hidden ring-1 ring-white/10 hover:ring-primary transition"
             >
               <div className="relative aspect-[3/4]">
@@ -422,7 +468,7 @@ const EventDetails = () => {
                   <div className="flex items-center justify-between mt-2">
                     <p className="text-primary font-bold">{relatedEvent.price}</p>
                     <button 
-                      onClick={() => window.location.href = `/nightlife/${relatedEvent.id}`}
+                      onClick={() => window.location.href = `/nightlife/${relatedEvent._id}`}
                       className="px-3 py-1 bg-primary hover:bg-primary-dull rounded text-sm transition"
                     >
                       View Details

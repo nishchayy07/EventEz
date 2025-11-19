@@ -26,6 +26,8 @@ import NowShowing from './pages/NowShowing'
 import Chatbot from './components/Chatbot'
 import VerifyTicket from './pages/VerifyTicket'
 import EventDetails from './pages/EventDetails'
+import NightlifeTicketSelection from './pages/NightlifeTicketSelection'
+import NightlifeSeatLayout from './pages/NightlifeSeatLayout'
 
 const App = () => {
 
@@ -45,6 +47,8 @@ const App = () => {
         <Route path='/sports/running/:id' element={<RunningBooking />} />
         <Route path='/nightlife' element={<Nightlife />} />
         <Route path='/nightlife/:id' element={<EventDetails />} />
+        <Route path='/nightlife/:id/tickets' element={<NightlifeTicketSelection />} />
+        <Route path='/nightlife/:id/seats' element={<NightlifeSeatLayout />} />
         <Route path='/movies' element={<Movies />} />
         <Route path='/now-showing' element={<NowShowing />} />
         <Route path='/movies/:id' element={<MovieDetails/>} />

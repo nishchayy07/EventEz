@@ -1,13 +1,14 @@
 // Sample data for the home page
+import { assets } from './assets'
 
 export const heroSlides = [
 	{
 		id: 1,
-		title: 'Sky Jumper Trampoline Park | Chandigarh',
-		subtitle: 'SkyJumper Trampoline Park - Chandigarh, Zirakpur',
+		title: 'Samay Raina - Still Alive & Unfiltered',
+		subtitle: '',
 		price: '\u20b9390 onwards',
 		badge: 'Daily, 11:00 AM onwards',
-		image: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?q=80&w=1800&auto=format&fit=crop',
+		image: 'https://assets-in.bmscdn.com/nmcms/events/banner/desktop/media-desktop-samay-raina-still-alive-unfiltered-0-2025-7-29-t-16-14-37.jpg',
 	},
 	{
 		id: 2,
@@ -15,7 +16,7 @@ export const heroSlides = [
 		subtitle: "North India's biggest water & amusement park",
 		price: '\u20b9500 onwards',
 		badge: 'Daily, 10:00 AM onwards',
-		image: 'https://www.hisurat.com/_next/image?url=https%3A%2F%2Fcdn.hisurat.com%2Fexploreplaces%2Ffun-city-water-park%2FDCF00617-1742214811327.webp&w=1920&q=75',
+		image: assets.ind,
 	},
 	{
 		id: 3,
