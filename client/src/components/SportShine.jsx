@@ -3,11 +3,22 @@ import { Calendar, MapPin, Trophy, Search, Filter, Star, Ticket } from 'lucide-r
 import { useAppContext } from '../context/AppContext';
 import Loading from './Loading';
 
+// Hardcoded sports categories
+const sportCategories = [
+  { id: "1", name: "Cricket", image: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=500" },
+  { id: "2", name: "Football", image: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=500" },
+  { id: "3", name: "Basketball", image: "https://images.unsplash.com/photo-1608245449230-4ac19066d2d0?w=500" },
+  { id: "4", name: "Tennis", image: "https://images.unsplash.com/photo-1595435742656-5272d0b3fa82?w=500" },
+  { id: "5", name: "Badminton", image: "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=500" },
+  { id: "6", name: "Chess", image: "https://images.unsplash.com/photo-1560174038-da43ac74f01b?w=500" },
+  { id: "7", name: "Running", image: "https://images.unsplash.com/photo-1483721310020-03333e577078?w=500" },
+  { id: "8", name: "Cycling", image: "https://images.unsplash.com/photo-1517649763962-0c623066013b?w=500" },
+];
+
 const SportShine = () => {
   const { axios } = useAppContext();
   const [selectedSport, setSelectedSport] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
-  const [sportCategories, setSportCategories] = useState([]);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -28,56 +39,59 @@ const SportShine = () => {
     return () => clearInterval(slideInterval);
   }, [heroImages.length]);
 
+  // Fetch events from database
   useEffect(() => {
-    const fetchInitialData = async () => {
+    const fetchEvents = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        // Fetch sports categories and default to cricket events
-        const sportsRes = await axios.get('/api/sports');
-        setSportCategories(sportsRes.data.sports || []);
-
-        const eventsRes = await axios.get('/api/sports/events/Cricket');
-        setUpcomingEvents(eventsRes.data.events || []);
-
+        const { data } = await axios.get('/api/sports/all-events');
+        if (data.success && data.events) {
+          // Convert database events to match the expected format
+          const formattedEvents = data.events.map(event => ({
+            idTeam: event._id,
+            strTeam: event.title,
+            strSport: event.sport,
+            strStadium: event.venue,
+            strCountry: event.venue,
+            strLeague: event.sport,
+            intFormedYear: new Date(event.showDateTime).getFullYear().toString(),
+            strBadge: event.image,
+            price: event.price,
+            showDateTime: event.showDateTime
+          }));
+          
+          // Filter by selected sport
+          if (selectedSport === 'all') {
+            setUpcomingEvents(formattedEvents);
+          } else {
+            const filtered = formattedEvents.filter(event => 
+              event.strSport.toLowerCase() === selectedSport.toLowerCase()
+            );
+            setUpcomingEvents(filtered);
+          }
+        }
       } catch (error) {
-        console.error("Failed to fetch initial sports data", error);
-        setSportCategories([]);
-        setUpcomingEvents([]);
+        console.error('Error fetching sport events:', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchInitialData();
-  }, [axios]);
-
-  useEffect(() => {
-    // This effect runs when a user selects a new sport from the list
-    const fetchEventsForSport = async () => {
-      // Don't run for the initial 'all' state, as that's handled above.
-      if (selectedSport === 'all') return;
-
-      try {
-        setLoading(true);
-        const res = await axios.get(`/api/sports/events/${selectedSport}`);
-        setUpcomingEvents(res.data.events || []);
-      } catch (error) {
-        console.error(`Failed to fetch events for ${selectedSport}`, error);
-        setUpcomingEvents([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEventsForSport();
+    
+    fetchEvents();
   }, [selectedSport, axios]);
 
   const filteredEvents = useMemo(() => {
     if (!Array.isArray(upcomingEvents)) {
-      return []; // Always return an array
+      return [];
     }
+    if (!searchQuery) return upcomingEvents;
+    
     return upcomingEvents.filter((e) => {
       const s = searchQuery.toLowerCase()
-      return e.strTeam?.toLowerCase().includes(s) || e.strStadium?.toLowerCase().includes(s) || e.strLeague?.toLowerCase().includes(s) || e.strCountry?.toLowerCase().includes(s)
+      return e.strTeam?.toLowerCase().includes(s) || 
+             e.strStadium?.toLowerCase().includes(s) || 
+             e.strLeague?.toLowerCase().includes(s) || 
+             e.strCountry?.toLowerCase().includes(s)
     });
   }, [searchQuery, upcomingEvents])
 
@@ -176,8 +190,8 @@ const SportShine = () => {
             {filteredEvents.map((team) => (
               <div key={team.idTeam} className='group overflow-hidden rounded-xl ring-1 ring-white/10 bg-card/50 hover:ring-primary transition-all'>
                 <div className='flex flex-col sm:flex-row'>
-                  <div className='relative sm:w-2/5 h-56 sm:h-auto overflow-hidden'>
-                    <img src={team.strBadge || team.strLogo || 'https://via.placeholder.com/400x400?text=No+Image'} alt={team.strTeam} className='absolute inset-0 w-full h-full object-contain p-4 bg-white/5 transition-transform duration-500 group-hover:scale-110' />
+                  <div className='relative sm:w-2/5 h-56 sm:h-64 overflow-hidden bg-white/5'>
+                    <img src={team.strBadge || team.strLogo || 'https://via.placeholder.com/400x400?text=No+Image'} alt={team.strTeam} className='absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110' />
                     <div className='absolute inset-0 bg-gradient-to-t from-card/80 to-transparent sm:bg-gradient-to-r' />
                     <div className='absolute top-3 left-3 right-3 flex justify-between items-start'>
                       <span className='px-2 py-0.5 rounded bg-black/50 text-xs'>{team.strSport}</span>
@@ -203,30 +217,36 @@ const SportShine = () => {
                     </div>
                     <div className='flex items-center justify-between pt-4 border-t border-white/10'>
                       <div>
-                        <p className='text-xs text-gray-400'>Country</p>
-                        <p className='text-lg font-bold text-primary'>{team.strCountry}</p>
+                        <p className='text-xs text-gray-400'>Ticket Price</p>
+                        <p className='text-lg font-bold text-primary'>₹{team.price}</p>
                       </div>
                       <button
                         className='px-3 py-1.5 rounded-md bg-primary hover:bg-primary-dull transition'
                         onClick={async () => {
                           try {
-                            const payload = {
-                              title: team.strTeam,
-                              sport: team.strSport || 'Sport',
-                              venue: team.strStadium || '',
-                              image: team.strBadge || team.strLogo || '',
-                              price: 20,
-                            };
-                            const { data } = await axios.post('/api/sports/event', payload);
-                            if (data.success) {
-                              window.location.href = `/sports/seat/${data.event._id}`
+                            // If event has showDateTime, it's from database - navigate directly to seat layout
+                            if (team.showDateTime && team.idTeam) {
+                              window.location.href = `/sports/seat/${team.idTeam}`;
+                            } else {
+                              // Fallback: create a new event instance for hardcoded data
+                              const payload = {
+                                title: team.strTeam,
+                                sport: team.strSport || 'Sport',
+                                venue: team.strStadium || '',
+                                image: team.strBadge || team.strLogo || '',
+                                price: team.price || 20,
+                              };
+                              const { data } = await axios.post('/api/sports/event', payload);
+                              if (data.success) {
+                                window.location.href = `/sports/seat/${data.event._id}`
+                              }
                             }
                           } catch (e) {
                             console.error(e)
                           }
                         }}
                       >
-                        View Tickets
+                        Book Tickets
                       </button>
                     </div>
                   </div>
