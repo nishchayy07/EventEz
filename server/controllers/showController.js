@@ -6,15 +6,33 @@ import { inngest } from "../inngest/index.js";
 // API to get now playing movies from TMDB API
 export const getNowPlayingMovies = async (req, res)=>{
     try {
+        // Check if TMDB API key is configured
+        if (!process.env.TMDB_API_KEY) {
+            return res.json({
+                success: false, 
+                message: 'TMDB API key not configured. Please set TMDB_API_KEY in environment variables.'
+            });
+        }
+
         const { data } = await axios.get('https://api.themoviedb.org/3/movie/now_playing', {
-            headers: {Authorization : `Bearer ${process.env.TMDB_API_KEY}`}
+            headers: {Authorization : `Bearer ${process.env.TMDB_API_KEY}`},
+            timeout: 10000 // 10 second timeout
         })
 
         const movies = data.results;
         res.json({success: true, movies: movies})
     } catch (error) {
-        console.error(error);
-        res.json({success: false, message: error.message})
+        console.error('TMDB API Error:', error.message);
+        
+        // Provide more helpful error message
+        let errorMessage = 'Failed to fetch movies from TMDB API';
+        if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT') {
+            errorMessage = 'Network connection issue. Please check your internet connection.';
+        } else if (error.response?.status === 401) {
+            errorMessage = 'Invalid TMDB API key. Please check your environment variables.';
+        }
+        
+        res.json({success: false, message: errorMessage})
     }
 }
 

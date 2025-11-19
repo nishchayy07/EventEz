@@ -15,7 +15,7 @@ const LocationSelector = ({ isOpen, onClose, selectedCity, onSelectCity }) => {
       setIsDetecting(false);
       return;
     }
-
+    
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         try {

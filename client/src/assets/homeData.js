@@ -48,8 +48,8 @@ export const topPunjabiMovies = [
 ]
 
 export const artists = [
-	{ id: 1, name: 'Gurdas Maan', image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=600&auto=format&fit=crop' },
-	{ id: 2, name: 'Vicky Dhillon', image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=600&auto=format&fit=crop' },
+	{ id: 1, name: 'Anubhav Singh Bassi', image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U3VuLCAxNiBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00355125-zfdunhwukb-portrait.jpg' },
+	{ id: 2, name: 'Vicky Dhillon', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDTMunsqOk_d7HxAcl7HZczKviKNDIgvAWUw&s' },
 	{ id: 3, name: 'Denzel Curry', image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=600&auto=format&fit=crop' },
 	{ id: 4, name: 'AR Paisley', image: 'https://images.unsplash.com/photo-1598387993281-cecf8b71a8f8?q=80&w=600&auto=format&fit=crop' },
 	{ id: 5, name: 'sixbill', image: 'https://images.unsplash.com/photo-1571330735066-03aaa9429d89?q=80&w=600&auto=format&fit=crop' },

@@ -28,7 +28,7 @@ const EventDetails = () => {
     },
     {
       id: '2',
-      title: 'Bas Kar Bassi',
+      title: 'Kisi ko Batana Mat ft. Anubhav Singh Bassi',
       venue: 'The Laugh Club',
       location: 'Delhi/NCR',
       date: '2025-11-10T21:00:00',

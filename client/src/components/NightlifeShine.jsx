@@ -4,9 +4,11 @@ import { useNavigate } from 'react-router-dom'
 import Loading from './Loading';
 import PopularNightlife from './PopularNightlife';
 import { NIGHTLIFE_CATEGORIES } from './NightlifeCategories';
+import { useAppContext } from '../context/AppContext';
 
 const NightlifeShine = () => {
   const navigate = useNavigate();
+  const { axios } = useAppContext();
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [nightlifeCategories, setNightlifeCategories] = useState([]);
@@ -31,191 +33,48 @@ const NightlifeShine = () => {
   }, [heroImages.length]);
 
   useEffect(() => {
-    // No external API calls: use hard-coded categories and dummy events.
-    setLoading(true);
-    const defaultCategories = NIGHTLIFE_CATEGORIES;
+    const fetchNightlifeData = async () => {
+      setLoading(true);
+      try {
+        // Fetch categories
+        const defaultCategories = NIGHTLIFE_CATEGORIES;
+        setNightlifeCategories(defaultCategories);
 
-    const dummyEvents = [
-      {
-            id: '1',
-            title: 'Saturday Night Live',
-            venue: 'Ophelia Lounge',
-            location: 'Delhi/NCR',
-            date: '2025-11-09T20:00:00',
-            price: '₹2999',
-            image: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7',
-            category: 'Concerts'
-          },
-          {
-            id: '2',
-            title: 'Bas Kar Bassi',
-            venue: 'The Laugh Club',
-            location: 'Delhi/NCR',
-            date: '2025-11-10T21:00:00',
-            price: '₹1299',
-            image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U3VuLCAxNiBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00355125-zfdunhwukb-portrait.jpg',
-            category: 'Comedy Shows'
-          },
-          {
-            id: '3',
-            title: 'Samay Raina-Still Alive and Unfiltered',
-            venue: 'Indira Gandhi Indoor Stadium',
-            location: 'New Delhi',
-            date: '2025-11-09T20:00:00',
-            price: '₹4499',
-            image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-TW9uLCAxNyBOb3Ygb253YXJkcw%3D%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end:l-text,ie-UFJPTU9URUQ%3D,co-FFFFFF,bg-DC354B,ff-Roboto,fs-20,lx-N16,ly-12,lfo-top_right,pa-12_14_12_14,r-6,l-end/et00454335-hqmbkqumjp-portrait.jpg',
-            category: 'Comedy Shows'
-          },
-          {
-            id: '4',
-            title: 'Kuch Bhi Ho Sakta Hai - Delhi Theatre Festival',
-            venue: 'Nehru Stadium',
-            location: 'Delhi',
-            date: '2025-11-10T20:00:00',
-            price: '₹499',
-            image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U3VuLCAxNiBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end:l-text,ie-UFJPTU9URUQ%3D,co-FFFFFF,bg-DC354B,ff-Roboto,fs-20,lx-N16,ly-12,lfo-top_right,pa-12_14_12_14,r-6,l-end/et00462375-uruhvkracx-portrait.jpg',
-            category: 'Theatre Shows'
-          },
-          {
-            id: '5',
-            title: 'Einstein 15th Nov - Delhi Theatre Festival',
-            venue: 'Nehru Stadium',
-            location: 'Delhi',
-            date: '2025-11-15T22:00:00',
-            price: '₹999',
-            image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U2F0LCAxNSBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00462380-nxjnvwzxep-portrait.jpg',
-            category: 'Theatre Shows'
-          },
-          {
-            id: '6',
-            title: 'AP Dhillon: One Of One Tour - Mumbai',
-            venue: 'Jio World Convention Centre: Mumbai',
-            location: 'Mumbai',
-            date: '2025-12-26T19:00:00',
-            price: '₹1299',
-            image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-RnJpLCAyNiBEZWM%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00458408-csskcxnekn-portrait.jpg',
-            category: 'Concerts'
-          },
-          {
-            id: '7',
-            title: 'Satrangi Re by Sonu Nigam',
-            venue: 'Nehru Stadium',
-            location: 'Delhi',
-            date: '2025-12-26T19:00:00',
-            price: '₹1299',
-            image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U2F0LCAyOCBNYXI%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00455992-cskuwbmxvk-portrait.jpg',
-            category: 'Concerts'
-          }
-          ,
-          {
-            id: '8',
-            title: 'Kal ki Chinta Nahi Karta ft. Ravi Gupta',
-            venue: 'CP67 Mall:Mohali',
-            location: 'Chandigarh',
-            date: '2025-12-26T19:00:00',
-            price: '₹499',
-            image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U2F0LCAxNSBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00329412-wqddascxcw-portrait.jpg',
-            category: 'Comedy Shows'
-          },
-          {
-            id: '9',
-            title: 'Daily ka Kaam hai by Aakash Gupta',
-            venue: 'CP67 Mall:Mohali',
-            location: 'Chandigarh',
-            date: '2025-12-26T19:00:00',
-            price: '₹499',
-            image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U3VuLCAxNiBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00419828-rtfdvqpztg-portrait.jpg',
-            category: 'Comedy Shows'
-          },
-          {
-            id: '10',
-            title: 'Gaurav Kapoor Live',
-            venue: 'CP67 Mall:Mohali',
-            location: 'Chandigarh',
-            date: '2025-12-26T20:00:00',
-            price: '₹499',
-            image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U3VuLCAyMSBEZWM%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00331714-blzqtszsvj-portrait.jpg',
-            category: 'Comedy Shows'
-          },
-          {
-            id: '11',
-            title: 'Sufi Night',
-            venue: 'CP67 Mall:Mohali',
-            location: 'Chandigarh',
-            date: '2025-12-26T20:00:00',
-            price: '₹999',
-            image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U3VuLCAyMyBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00468484-exlkezngpn-portrait.jpg',
-            category: 'Qawali Night'
-          },
-          {
-            id: '12',
-            title: 'The Night Before Tomorrow: A The Weeknd Fan Event',
-            venue: 'CP67 Mall:Mohali',
-            location: 'Chandigarh',
-            date: '2025-11-15T20:00:00',
-            price: '₹4999',
-            image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U2F0LCAyOSBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00468465-uhkdaplggf-portrait.jpg',
-            category: 'Concerts'
-          }
-          ,
-          {
-            id: '13',
-            title: 'HUMARE RAM Ft Ashutosh Rana and Rahull R Bhuchar',
-            venue: 'Kedarnath Sahni Auditorium: Delhi',
-            location: 'Delhi',
-            date: '2025-11-17T22:00:00',
-            price: '₹899',
-            image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-RnJpLCAxNCBOb3Ygb253YXJkcw%3D%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00376688-nansgzqfxr-portrait.jpg',
-            category: 'Theatre Shows'
-          },
-          {
-            id: '14',
-            title: 'Sir Sir Sarla - Delhi Theatre Festival',
-            venue: 'Kedarnath Sahni Auditorium: Delhi',
-            location: 'Delhi',
-            date: '2025-11-17T22:00:00',
-            price: '₹899',
-            image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U2F0LCAxNSBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00462378-ggbwsjvfbe-portrait.jpg',
-            category: 'Theatre Shows'
-          },
-          {
-            id: '15',
-            title: 'Sufi Night at Noida',
-            venue: 'Kedarnath Sahni Auditorium',
-            location: 'Noida',
-            date: '2025-11-17T22:00:00',
-            price: '₹899',
-            image: 'https://media.insider.in/image/upload/c_crop,g_custom/v1753852044/uhx3uuehlydr0hcmgxk3.jpg',
-            category: 'Qawali Night'
-          },
-          {
-            id: '16',
-            title: 'Rehmat e Nusrat by Amarrass',
-            venue: 'The Piano Man New Delhi',
-            location: 'Delhi',
-            date: '2025-11-28T20:30:00',
-            price: '₹899',
-            image: 'https://media.insider.in/image/upload/c_crop,g_custom/v1760787674/vb5m7kz70ltp5jybrcxx.png',
-            category: 'Qawali Night'
-          },
-          {
-            id: '17',
-            title: 'Qawaali Night',
-            venue: 'Cosy Box',
-            location: 'Gurugram',
-            date: '2025-11-28T20:30:00',
-            price: '₹899',
-            image: 'https://media.insider.in/image/upload/c_crop,g_custom/v1757936057/uh6bl4mpnxluzwht6k0c.png',
-            category: 'Qawali Night'
-          }
+        // Fetch events from API
+        const { data } = await axios.get('/api/nightlife/events');
+        if (data.success && data.events) {
+          // Map API data to match frontend format
+          const mappedEvents = data.events.map(event => ({
+            id: event._id,
+            title: event.title,
+            venue: event.venue,
+            location: event.location,
+            date: event.showDateTime,
+            price: event.price,
+            image: event.image,
+            landscapeImage: event.landscapeImage,
+            category: event.category,
+            description: event.description,
+            artist: event.artist,
+            artistImage: event.artistImage,
+            duration: event.duration,
+            ageRestriction: event.ageRestriction
+          }));
+          setUpcomingEvents(mappedEvents);
+        } else {
+          console.error('Failed to fetch events:', data.message);
+          setUpcomingEvents([]);
+        }
+      } catch (error) {
+        console.error('Error fetching nightlife data:', error);
+        setUpcomingEvents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-
-    ];
-
-    setNightlifeCategories(defaultCategories);
-    setUpcomingEvents(dummyEvents);
-    setLoading(false);
-  }, []);
+    fetchNightlifeData();
+  }, [axios]);
 
   const filteredEvents = useMemo(() => {
     if (!Array.isArray(upcomingEvents)) return [];
