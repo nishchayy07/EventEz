@@ -7,4 +7,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),],
+  build: {
+    sourcemap: false, // Disable source maps to avoid parsing errors
+  },
 })

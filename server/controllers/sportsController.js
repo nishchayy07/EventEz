@@ -149,9 +149,14 @@ export const createSportEvent = async (req, res) => {
 // Get all sport events from database
 export const getAllSportEvents = async (req, res) => {
     try {
-        const { location } = req.query; // Get location from query params
+        const { location, showAll } = req.query; // Get location and showAll from query params
         
-        let query = { showDateTime: { $gte: new Date() } };
+        let query = {};
+        
+        // Only filter by date if showAll is not 'true'
+        if (showAll !== 'true') {
+            query.showDateTime = { $gte: new Date() };
+        }
         
         // If location is provided, filter by venue containing the location
         if (location) {
@@ -159,9 +164,15 @@ export const getAllSportEvents = async (req, res) => {
             query.venue = { $regex: location, $options: 'i' };
         }
         
+        console.log('🏀 Sports Query:', JSON.stringify(query));
+        console.log('🏀 showAll parameter:', showAll);
+        
         const events = await SportEvent.find(query)
             .sort({ showDateTime: 1 })
             .limit(20);
+        
+        console.log('🏀 Found events count:', events.length);
+        console.log('🏀 Events:', events);
         
         res.json({ success: true, events });
     } catch (error) {

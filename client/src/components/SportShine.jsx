@@ -45,8 +45,10 @@ const SportShine = () => {
       setLoading(true);
       try {
         const { data } = await axios.get('/api/sports/all-events', { 
-          params: { location: selectedLocation } 
+          params: { showAll: 'true' } 
         });
+        console.log('🏀 Sports API Response:', data);
+        console.log('🏀 Number of events:', data.events?.length);
         if (data.success && data.events) {
           // Convert database events to match the expected format
           const formattedEvents = data.events.map(event => ({

@@ -42,8 +42,10 @@ const NightlifeShine = () => {
 
         // Fetch events from API
         const { data } = await axios.get('/api/nightlife/events', { 
-          params: { location: selectedLocation } 
+          params: { showAll: 'true' } 
         });
+        console.log('🎉 Nightlife API Response:', data);
+        console.log('🎉 Number of events:', data.events?.length);
         if (data.success && data.events) {
           // Map API data to match frontend format
           const mappedEvents = data.events.map(event => ({

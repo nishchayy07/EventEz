@@ -295,9 +295,14 @@ export const getMockNightlifeEvents = async (req, res) => {
 // Get all nightlife events
 export const getAllNightlifeEvents = async (req, res) => {
     try {
-        const { location } = req.query; // Get location from query params
+        const { location, showAll } = req.query; // Get location and showAll from query params
         
-        let query = { showDateTime: { $gte: new Date() } };
+        let query = {};
+        
+        // Only filter by date if showAll is not 'true'
+        if (showAll !== 'true') {
+            query.showDateTime = { $gte: new Date() };
+        }
         
         // If location is provided, filter by location field (exact match or contains)
         if (location) {
@@ -305,7 +310,13 @@ export const getAllNightlifeEvents = async (req, res) => {
             query.location = { $regex: location, $options: 'i' };
         }
         
+        console.log('🎉 Nightlife Query:', JSON.stringify(query));
+        console.log('🎉 showAll parameter:', showAll);
+        
         const events = await NightlifeEvent.find(query).sort({ showDateTime: 1 });
+        
+        console.log('🎉 Found events count:', events.length);
+        console.log('🎉 Events:', events);
         
         // If no events in database, return empty array (frontend should handle gracefully)
         res.json({ success: true, events });
