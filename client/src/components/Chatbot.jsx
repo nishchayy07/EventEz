@@ -7,7 +7,7 @@ const Chatbot = () => {
 	const { axios, user, shows, favoriteMovies, selectedLocation } = useAppContext()
 	const [isOpen, setIsOpen] = useState(false)
 	const [messages, setMessages] = useState([
-		{ role: 'assistant', content: 'Hi! I\'m your EventEz assistant. How can I help today?' }
+		{ role: 'assistant', content: `Hi! I'm your EventEz assistant. I can help you find events in ${selectedLocation || 'your city'}. How can I help today?` }
 	])
 	const [input, setInput] = useState('')
 	const [isSending, setIsSending] = useState(false)
@@ -23,15 +23,21 @@ const Chatbot = () => {
 		location: selectedLocation || 'Chandigarh',
 	}), [location.pathname, shows, favoriteMovies, user, selectedLocation])
 
-	// Update initial message when location changes (only once)
+	// Update initial message when location changes
 	useEffect(() => {
-		if (!hasInitialized.current && selectedLocation) {
-			hasInitialized.current = true;
+		if (selectedLocation) {
 			setMessages([
 				{ role: 'assistant', content: `Hi! I'm your EventEz assistant. I can help you find events in ${selectedLocation}. How can I help today?` }
 			]);
 		}
 	}, [selectedLocation]);
+
+	// Auto-scroll to bottom when messages change
+	useEffect(() => {
+		if (listRef.current) {
+			listRef.current.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
+		}
+	}, [messages]);
 
 	const send = async () => {
 		if (!input.trim() || isSending) return
@@ -48,9 +54,6 @@ const Chatbot = () => {
 				const reply = data?.reply || 'Sorry, something went wrong.'
 				setMessages(curr => [...curr, { role: 'assistant', content: reply }])
 			}
-			queueMicrotask(() => {
-				listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' })
-			})
 		} catch (err) {
 			const serverMsg = err?.response?.data?.message
 			const msg = serverMsg || 'Sorry, I had trouble responding.'

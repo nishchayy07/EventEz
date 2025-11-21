@@ -400,7 +400,7 @@ const RunningBooking = () => {
                           animate={{ scale: 1 }}
                           className="text-3xl font-extrabold bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent"
                         >
-                          ${(selectedTicket.price * ticketCount).toFixed(2)}
+                          ₹{(selectedTicket.price * ticketCount).toFixed(2)}
                         </motion.span>
                       </motion.div>
                     </div>
@@ -598,7 +598,7 @@ const RunningBooking = () => {
                               scale: isHovered ? 1.1 : 1
                             }}
                           >
-                            ${ticket.price}
+                            ₹{ticket.price}
                           </motion.span>
                           <span className="text-gray-400 text-sm font-medium">per ticket</span>
                         </div>
@@ -859,7 +859,7 @@ const RunningBooking = () => {
                         transition={{ type: "spring", stiffness: 300 }}
                         className="bg-white/20 px-4 py-1 rounded-full font-bold backdrop-blur-sm border border-white/30"
                       >
-                        ${(selectedTicket.price * ticketCount).toFixed(2)}
+                        ₹{(selectedTicket.price * ticketCount).toFixed(2)}
                       </motion.span>
                     </div>
 

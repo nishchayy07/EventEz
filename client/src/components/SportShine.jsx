@@ -44,14 +44,17 @@ const SportShine = () => {
     const fetchEvents = async () => {
       setLoading(true);
       try {
+        // Fetch all events first
         const { data } = await axios.get('/api/sports/all-events', { 
           params: { showAll: 'true' } 
         });
         console.log('🏀 Sports API Response:', data);
         console.log('🏀 Number of events:', data.events?.length);
+        console.log('🏀 Selected Location:', selectedLocation);
+        
         if (data.success && data.events) {
           // Convert database events to match the expected format
-          const formattedEvents = data.events.map(event => ({
+          let formattedEvents = data.events.map(event => ({
             idTeam: event._id,
             strTeam: event.title,
             strSport: event.sport,
@@ -63,6 +66,18 @@ const SportShine = () => {
             price: event.price,
             showDateTime: event.showDateTime
           }));
+          
+          // Smart sorting: events matching selected location come first
+          if (selectedLocation) {
+            formattedEvents.sort((a, b) => {
+              const aMatches = a.strStadium?.toLowerCase().includes(selectedLocation.toLowerCase());
+              const bMatches = b.strStadium?.toLowerCase().includes(selectedLocation.toLowerCase());
+              
+              if (aMatches && !bMatches) return -1;
+              if (!aMatches && bMatches) return 1;
+              return 0;
+            });
+          }
           
           // Filter by selected sport
           if (selectedSport === 'all') {

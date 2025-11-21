@@ -399,7 +399,7 @@ const ChessBooking = () => {
                           animate={{ scale: 1 }}
                           className="text-3xl font-extrabold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"
                         >
-                          ${(selectedTicket.price * ticketCount).toFixed(2)}
+                          ₹{(selectedTicket.price * ticketCount).toFixed(2)}
                         </motion.span>
                       </motion.div>
                     </div>
@@ -597,7 +597,7 @@ const ChessBooking = () => {
                               scale: isHovered ? 1.1 : 1
                             }}
                           >
-                            ${ticket.price}
+                            ₹{ticket.price}
                           </motion.span>
                           <span className="text-gray-400 text-sm font-medium">per ticket</span>
                         </div>

@@ -40,15 +40,17 @@ const NightlifeShine = () => {
         const defaultCategories = NIGHTLIFE_CATEGORIES;
         setNightlifeCategories(defaultCategories);
 
-        // Fetch events from API
+        // Fetch all events from API
         const { data } = await axios.get('/api/nightlife/events', { 
           params: { showAll: 'true' } 
         });
         console.log('🎉 Nightlife API Response:', data);
         console.log('🎉 Number of events:', data.events?.length);
+        console.log('🎉 Selected Location:', selectedLocation);
+        
         if (data.success && data.events) {
           // Map API data to match frontend format
-          const mappedEvents = data.events.map(event => ({
+          let mappedEvents = data.events.map(event => ({
             id: event._id,
             title: event.title,
             venue: event.venue,
@@ -64,6 +66,21 @@ const NightlifeShine = () => {
             duration: event.duration,
             ageRestriction: event.ageRestriction
           }));
+          
+          // Smart sorting: events matching selected location come first
+          if (selectedLocation) {
+            mappedEvents.sort((a, b) => {
+              const aMatches = a.location?.toLowerCase().includes(selectedLocation.toLowerCase()) ||
+                              a.venue?.toLowerCase().includes(selectedLocation.toLowerCase());
+              const bMatches = b.location?.toLowerCase().includes(selectedLocation.toLowerCase()) ||
+                              b.venue?.toLowerCase().includes(selectedLocation.toLowerCase());
+              
+              if (aMatches && !bMatches) return -1;
+              if (!aMatches && bMatches) return 1;
+              return 0;
+            });
+          }
+          
           setUpcomingEvents(mappedEvents);
         } else {
           console.error('Failed to fetch events:', data.message);

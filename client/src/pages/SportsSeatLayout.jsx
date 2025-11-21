@@ -1177,44 +1177,27 @@ const SportsSeatLayout = () => {
                 opacity="1"
               />
             ) : (
-              /* Basketball: Horizontal rectangular field */
-              <rect 
-                x={rectangularFieldX}
-                y={rectangularFieldY}
-                width={rectangularFieldWidth}
-                height={rectangularFieldHeight}
+              /* Basketball: Fill full circle with image, rounded */
+              <circle 
+                cx={centerX} 
+                cy={centerY} 
+                r={innerRadius}
                 fill="url(#basketballGroundImage)"
                 opacity="1"
               />
             )}
 
             {/* Field glow effect */}
-            {isCircularSport ? (
-              /* Football/Tennis/Badminton: Circle glow */
-              <circle 
-                cx={centerX} 
-                cy={centerY} 
-                r={innerRadius} 
-                fill="none"
-                stroke={isTennis ? 'rgba(129, 199, 132, 0.5)' : (isBadminton ? 'rgba(66, 165, 245, 0.5)' : 'rgba(76, 175, 80, 0.5)')}
-                strokeWidth="0.4"
-                opacity="0.7"
-                filter="url(#stadiumGlow)"
-              />
-            ) : (
-              /* Basketball: Rectangle glow */
-              <rect 
-                x={rectangularFieldX - 0.5}
-                y={rectangularFieldY - 0.5}
-                width={rectangularFieldWidth + 1}
-                height={rectangularFieldHeight + 1}
-                fill="none"
-                stroke="rgba(198, 40, 40, 0.6)"
-                strokeWidth="0.4"
-                opacity="0.7"
-                filter="url(#stadiumGlow)"
-              />
-            )}
+            <circle 
+              cx={centerX} 
+              cy={centerY} 
+              r={innerRadius} 
+              fill="none"
+              stroke={isBasketball ? 'rgba(198, 40, 40, 0.6)' : (isTennis ? 'rgba(129, 199, 132, 0.5)' : (isBadminton ? 'rgba(66, 165, 245, 0.5)' : 'rgba(76, 175, 80, 0.5)'))}
+              strokeWidth="0.4"
+              opacity="0.7"
+              filter="url(#stadiumGlow)"
+            />
           </>
         ) : (
           /* Cricket: Circular ground */
@@ -1478,7 +1461,7 @@ const SportsSeatLayout = () => {
 
           <p className='text-gray-400 text-sm mt-1'>{new Date(event.showDateTime).toLocaleString()}</p>
 
-          <p className='text-primary font-semibold mt-2'>${event.price}</p>
+          <p className='text-primary font-semibold mt-2'>₹{event.price}</p>
 
           
 
@@ -1504,7 +1487,7 @@ const SportsSeatLayout = () => {
 
               <p className='text-sm font-semibold mt-4 text-primary'>
 
-                Total: ${(event.price * selectedSeats.length).toFixed(2)}
+                Total: ₹{(event.price * selectedSeats.length).toFixed(2)}
 
               </p>
 
