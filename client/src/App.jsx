@@ -28,6 +28,7 @@ import VerifyTicket from './pages/VerifyTicket'
 import EventDetails from './pages/EventDetails'
 import NightlifeTicketSelection from './pages/NightlifeTicketSelection'
 import NightlifeSeatLayout from './pages/NightlifeSeatLayout'
+import AdminReleaseSeats from './pages/admin/AdminReleaseSeats';
 
 const App = () => {
 
@@ -67,6 +68,7 @@ const App = () => {
           <Route path="add-shows" element={<AddShows/>}/>
           <Route path="list-shows" element={<ListShows/>}/>
           <Route path="list-bookings" element={<ListBookings/>}/>
+          <Route path="release-seats" element={<AdminReleaseSeats />} />
         </Route>
       </Routes>
        {!isAdminRoute && <Footer />}

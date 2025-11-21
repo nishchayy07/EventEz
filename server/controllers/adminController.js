@@ -1,3 +1,91 @@
+// API to get all shows, sport events, and nightlife events for admin seat release
+export const getAllEventsWithSeats = async (req, res) => {
+    try {
+        const shows = await Show.find({ showDateTime: { $gte: new Date() } }).populate('movie').sort({ showDateTime: 1 });
+        const sportEvents = await SportEvent.find({ showDateTime: { $gte: new Date() } }).sort({ showDateTime: 1 });
+        const nightlifeEvents = await NightlifeEvent.find({ showDateTime: { $gte: new Date() } }).sort({ showDateTime: 1 });
+
+        // Normalize for frontend
+        const all = [
+            ...shows.map(show => ({
+                _id: show._id,
+                type: 'movie',
+                title: show.movie?.title || '',
+                showDateTime: show.showDateTime,
+                occupiedSeats: show.occupiedSeats,
+            })),
+            ...sportEvents.map(event => ({
+                _id: event._id,
+                type: 'sport',
+                title: event.title,
+                showDateTime: event.showDateTime,
+                occupiedSeats: event.occupiedSeats,
+            })),
+            ...nightlifeEvents.map(event => ({
+                _id: event._id,
+                type: 'nightlife',
+                title: event.title,
+                showDateTime: event.showDateTime,
+                occupiedSeats: event.occupiedSeats,
+            })),
+        ];
+        res.json({ success: true, events: all });
+    } catch (error) {
+        console.error(error);
+        res.json({ success: false, message: error.message });
+    }
+};
+// Admin: Release (unbook) a seat for a show/event
+export const releaseSeat = async (req, res) => {
+    try {
+        const { showId, seatId } = req.body;
+        if (!showId || !seatId) return res.json({ success: false, message: 'Missing showId or seatId' });
+
+        // Try Show (movie)
+        let show = await Show.findById(showId);
+        if (show) {
+            if (show.occupiedSeats && show.occupiedSeats[seatId]) {
+                delete show.occupiedSeats[seatId];
+                show.markModified('occupiedSeats');
+                await show.save();
+                return res.json({ success: true });
+            } else {
+                return res.json({ success: false, message: 'Seat not found in occupiedSeats' });
+            }
+        }
+
+        // Try NightlifeEvent
+        let nightlife = await NightlifeEvent.findById(showId);
+        if (nightlife) {
+            if (nightlife.occupiedSeats && nightlife.occupiedSeats[seatId]) {
+                delete nightlife.occupiedSeats[seatId];
+                nightlife.markModified('occupiedSeats');
+                await nightlife.save();
+                return res.json({ success: true });
+            } else {
+                return res.json({ success: false, message: 'Seat not found in occupiedSeats' });
+            }
+        }
+
+        // Try SportEvent
+        let sport = await SportEvent.findById(showId);
+        if (sport) {
+            if (sport.occupiedSeats && sport.occupiedSeats[seatId]) {
+                delete sport.occupiedSeats[seatId];
+                sport.markModified('occupiedSeats');
+                await sport.save();
+                return res.json({ success: true });
+            } else {
+                return res.json({ success: false, message: 'Seat not found in occupiedSeats' });
+            }
+        }
+
+        return res.json({ success: false, message: 'Show/Event not found' });
+    } catch (error) {
+        console.error(error);
+        res.json({ success: false, message: error.message });
+    }
+};
 import Booking from "../models/Booking.js"
 import Show from "../models/Show.js";
 import User from "../models/User.js";
@@ -76,3 +164,4 @@ export const getAllBookings = async (req, res) =>{
         res.json({success: false, message: error.message})
     }
 }
+
