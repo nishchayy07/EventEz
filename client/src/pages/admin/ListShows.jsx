@@ -33,8 +33,12 @@ const ListShows = () => {
 
     const getAllNightlifeEvents = async () => {
         try {
-            const { data } = await axios.get("/api/nightlife/events");
+            const { data } = await axios.get("/api/nightlife/events", {
+                params: { showAll: 'true' }
+            });
             if (data.success) {
+                console.log('📊 Total nightlife events in database:', data.events?.length);
+                console.log('📊 Nightlife events:', data.events);
                 setNightlifeEvents(data.events);
             }
             setLoading(false);

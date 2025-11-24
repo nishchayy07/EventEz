@@ -22,10 +22,10 @@ const mockNightlifeEvents = [
         location: 'Delhi/NCR',
         category: 'Concerts',
         price: '₹2999',
-        image: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7',
-        landscapeImage:'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2940&auto=format&fit=crop',
+        image: "/src/assets/land_img/photo-1.jpeg",
+        landscapeImage: "/src/assets/land_img/photo-1.jpeg",
         artist: 'Alan Walker',
-        artistImage:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqFPMS1dzKufGIUHn5Oo5K5EvPab6JG7WirCKFsPMM-lvoAo94Nzm4hfJa-dTzASZ2CK3I_Q-2kZDMcMytTqQrHmJtp0y3BI_ySh7zTch1PA&s=10',
+        artistImage: "/src/assets/art_img/First.jpeg",
         duration: '3 hours',
         ageRestriction: '18+',
         description: 'Join us for an unforgettable Saturday Night Live experience with amazing music, drinks, and vibes at the stunning Ophelia Lounge.'
@@ -37,10 +37,10 @@ const mockNightlifeEvents = [
         location: 'Delhi/NCR',
         category: 'Comedy Shows',
         price: '₹1299',
-        image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U3VuLCAxNiBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00355125-zfdunhwukb-portrait.jpg',
-        landscapeImage: 'https://assets-in.bmscdn.com/discovery-catalog/events/et00355125-ndvulngklb-landscape.jpg',
+        image: '/src/assets/img_short/id2.jpg',
+        landscapeImage: '/src/assets/land_img/photo-2.jpg',
         artist: 'Anubhav Singh Bassi',
-        artistImage: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U3VuLCAxNiBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00355125-zfdunhwukb-portrait.jpg',
+        artistImage: '/src/assets/art_img/2.jpg',
         duration: '90 minutes',
         ageRestriction: '18+',
         description: 'Watch Anubhav Singh Bassi perform his hilarious stand-up routine "Kisi ko Batana Mat" live!'
@@ -52,10 +52,10 @@ const mockNightlifeEvents = [
         location: 'New Delhi',
         category: 'Comedy Shows',
         price: '₹4499',
-        image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-TW9uLCAxNyBOb3Ygb253YXJkcw%3D%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end:l-text,ie-UFJPTU9URUQ%3D,co-FFFFFF,bg-DC354B,ff-Roboto,fs-20,lx-N16,ly-12,lfo-top_right,pa-12_14_12_14,r-6,l-end/et00454335-hqmbkqumjp-portrait.jpg',
-        landscapeImage: 'https://assets-in.bmscdn.com/nmcms/events/banner/desktop/media-desktop-samay-raina-still-alive-unfiltered-0-2025-7-29-t-16-14-37.jpg',
+        image: '/src/assets/img_short/id3.jpg',
+        landscapeImage: '/src/assets/land_img/photo-3.jpg',
         artist: 'Samay Raina',
-        artistImage: 'https://admin.hire4event.com/assets/artistimage/17352892321735289232Samay.webp',
+        artistImage: '/src/assets/art_img/3.jpg',
         duration: '2 hours',
         ageRestriction: '18+',
         description: 'Samay Raina brings his unfiltered comedy to Delhi in this special live show.'
@@ -67,10 +67,10 @@ const mockNightlifeEvents = [
         location: 'Delhi',
         category: 'Theatre Shows',
         price: '₹499',
-        image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U3VuLCAxNiBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end:l-text,ie-UFJPTU9URUQ%3D,co-FFFFFF,bg-DC354B,ff-Roboto,fs-20,lx-N16,ly-12,lfo-top_right,pa-12_14_12_14,r-6,l-end/et00462375-uruhvkracx-portrait.jpg',
-        landscapeImage: 'https://assets-in.bmscdn.com/nmcms/events/banner/desktop/media-desktop-kuch-bhi-ho-sakta-hai-hyderabad-theatre-festival-0-2025-11-2-t-4-53-58.jpg',
+        image: '/src/assets/img_short/id4.jpg',
+        landscapeImage: '/src/assets/land_img/photo-4.jpg',
         artist: 'Anupam Kher',
-        artistImage: 'https://m.media-amazon.com/images/M/MV5BMWI1MGI2MWQtNjM1NS00NDg3LTg5ZmMtNzI3YzM2YjNiYjFiXkEyXkFqcGc@._V1_.jpg',
+        artistImage: '/src/assets/art_img/4.jpg',
         duration: '2 hours 30 minutes',
         ageRestriction: 'All Ages',
         description: 'A thought-provoking theatrical performance as part of the prestigious Delhi Theatre Festival.'
@@ -82,10 +82,10 @@ const mockNightlifeEvents = [
         location: 'Delhi',
         category: 'Theatre Shows',
         price: '₹999',
-        image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-U2F0LCAxNSBOb3Y%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00462380-nxjnvwzxep-portrait.jpg',
-        landscapeImage: 'https://assets-in.bmscdn.com/nmcms/events/banner/desktop/media-desktop-einstein-7th-december-bengaluru-theatre-festival-0-2025-10-19-t-3-0-20.jpg',
+        image: '/src/assets/img_short/id5.jpg',
+        landscapeImage: '/src/assets/land_img/photo-5.jpg',
         artist: 'Naseeruddin Shah',
-        artistImage: 'https://resizing.flixster.com/8U7KrCa2z21pTO5bg4tyjaOl3t8=/fit-in/352x330/v2/https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/72504_v9_bc.jpg',
+        artistImage: '/src/assets/art_img/5.jpg',
         duration: '2 hours',
         ageRestriction: '12+',
         description: 'A fascinating theatrical journey into the life and mind of Albert Einstein.'
@@ -97,10 +97,10 @@ const mockNightlifeEvents = [
         location: 'Mumbai',
         category: 'Concerts',
         price: '₹1299',
-        image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-RnJpLCAyNiBEZWM%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00458408-csskcxnekn-portrait.jpg',
-        landscapeImage: 'https://assets-in.bmscdn.com/nmcms/events/banner/desktop/media-desktop-ap-dhillon-one-of-one-tour-mumbai-0-2025-9-28-t-7-29-2.jpg',
+        image: '/src/assets/img_short/id6.jpg',
+        landscapeImage: '/src/assets/land_img/photo-6.jpg',
         artist: 'AP Dhillon',
-        artistImage: 'https://pearlentertainment.in/wp-content/uploads/classified-listing/2024/09/AP.Dhillon1.jpg',
+        artistImage: '/src/assets/art_img/6.jpg',
         duration: '3 hours',
         ageRestriction: '18+',
         description: 'AP Dhillon brings his electrifying "One Of One Tour" to Mumbai!'
@@ -203,7 +203,7 @@ const mockNightlifeEvents = [
         category: 'Theatre Shows',
         price: '₹899',
         image: 'https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:l-text,ie-RnJpLCAxNCBOb3Ygb253YXJkcw%3D%3D,fs-29,co-FFFFFF,ly-612,lx-24,pa-8_0_0_0,l-end/et00376688-nansgzqfxr-portrait.jpg',
-        landscapeImage: 'https://images.unsplash.com/photo-1503095396549-807759245b35?q=80&w=2942&auto=format&fit=crop',
+        landscapeImage: 'https://assets-in.bmscdn.com/nmcms/events/banner/desktop/media-desktop-humare-ram-ft-ashutosh-rana-and-rahull-r-bhuchar-0-2025-6-13-t-9-9-11.jpg',
         artist: 'Ashutosh Rana',
         artistImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2787&auto=format&fit=crop',
         duration: '2 hours 15 minutes',
@@ -316,9 +316,9 @@ export const getAllNightlifeEvents = async (req, res) => {
         const events = await NightlifeEvent.find(query).sort({ showDateTime: 1 });
         
         console.log('🎉 Found events count:', events.length);
-        console.log('🎉 Events:', events);
+        console.log('🎉 Events from DB:', JSON.stringify(events.map(e => ({ id: e._id, title: e.title }))));
         
-        // If no events in database, return empty array (frontend should handle gracefully)
+        // ONLY return database events - NO fallback to mock data
         res.json({ success: true, events });
     } catch (error) {
         console.error('Error fetching nightlife events:', error);

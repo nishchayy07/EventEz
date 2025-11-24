@@ -355,8 +355,8 @@ const AddShows = () => {
             </div>
        )}
        {selectedMovie && (
-       <button onClick={handleSubmit} disabled={addingShow} className="bg-primary text-white px-8 py-2 mt-6 rounded hover:bg-primary/90 transition-all cursor-pointer" >
-            Add Show
+       <button onClick={handleSubmit} disabled={addingShow} className="bg-primary text-white px-8 py-2 mt-6 rounded hover:bg-primary/90 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" >
+            {addingShow ? 'Adding...' : 'Add Show'}
         </button>
        )}
             </>
@@ -459,8 +459,8 @@ const AddShows = () => {
                 </div>
               </div>
               
-              <button onClick={handleSubmit} disabled={addingShow} className="bg-primary text-white px-8 py-2 mt-6 rounded hover:bg-primary/90 transition-all cursor-pointer">
-                Add Sport Event
+              <button onClick={handleSubmit} disabled={addingShow} className="bg-primary text-white px-8 py-2 mt-6 rounded hover:bg-primary/90 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                {addingShow ? 'Adding...' : 'Add Sport Event'}
               </button>
             </>
           )}
