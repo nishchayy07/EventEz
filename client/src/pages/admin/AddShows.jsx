@@ -309,16 +309,19 @@ const AddShows = () => {
         </div>
       </div>
 
-       {/* Show Price Input */}
-       <div className="mt-8">
+       {/* Show Price Input - Only show when movie is selected */}
+       {selectedMovie && (
+        <div className="mt-8">
             <label className="block text-sm font-medium mb-2">Show Price</label>
             <div className="inline-flex items-center gap-2 border border-gray-600 px-3 py-2 rounded-md">
                 <p className="text-gray-400 text-sm">{currency}</p>
                 <input min={0} type="number" value={showPrice} onChange={(e) => setShowPrice(e.target.value)} placeholder="Enter show price" className="outline-none" />
             </div>
         </div>
+       )}
 
-        {/* Date & Time Selection */}
+        {/* Date & Time Selection - Only show when movie is selected */}
+        {selectedMovie && (
         <div className="mt-6">
             <label className="block text-sm font-medium mb-2">Select Date and Time</label>
             <div className="inline-flex gap-5 border border-gray-600 p-1 pl-3 rounded-lg">
@@ -328,6 +331,7 @@ const AddShows = () => {
                 </button>
             </div>
         </div>
+        )}
 
        {/* Display Selected Times */}
         {Object.keys(dateTimeSelection).length > 0 && (
@@ -350,9 +354,11 @@ const AddShows = () => {
             </ul>
             </div>
        )}
+       {selectedMovie && (
        <button onClick={handleSubmit} disabled={addingShow} className="bg-primary text-white px-8 py-2 mt-6 rounded hover:bg-primary/90 transition-all cursor-pointer" >
             Add Show
         </button>
+       )}
             </>
           ) : (
             <div className="mt-10 p-8 bg-gray-800/30 rounded-lg border border-gray-700 text-center">
@@ -366,7 +372,7 @@ const AddShows = () => {
       {/* Sports Tab */}
       {activeTab === 'sports' && mockSportEvents.length > 0 && (
         <>
-          <p className="mt-10 text-lg font-medium">Available Mock Sport Events</p>
+          <p className="mt-10 text-lg font-medium">Available Sport Events</p>
           <div className="overflow-x-auto pb-4">
             <div className="group flex gap-4 mt-4 w-max">
               {mockSportEvents.map((event) => (
@@ -464,7 +470,7 @@ const AddShows = () => {
       {/* Nightlife Tab */}
       {activeTab === 'nightlife' && (
         <>
-          <p className="mt-10 text-lg font-medium">Available Mock Nightlife Events</p>
+          <p className="mt-10 text-lg font-medium">Available Nightlife Events</p>
           <div className="overflow-x-auto pb-4">
             <div className="group flex gap-4 mt-4 w-max">
               {mockNightlifeEvents.map((event) => (
@@ -473,11 +479,11 @@ const AddShows = () => {
                   onClick={() => setSelectedNightlifeEvent(event)}
                   className="relative max-w-40 cursor-pointer group-hover:not-hover:opacity-40 hover:-translate-y-1 transition duration-300"
                 >
-                  <div className="relative rounded-lg overflow-hidden">
+                  <div className="relative rounded-lg overflow-hidden h-60">
                     <img
                       src={event.image || 'https://via.placeholder.com/300x450'}
                       alt={event.title}
-                      className="w-full object-cover brightness-90"
+                      className="w-full h-full object-cover brightness-90"
                     />
                   </div>
                   {selectedNightlifeEvent?.id === event.id && (
@@ -548,7 +554,7 @@ const AddShows = () => {
                 disabled={addingShow || !nightlifeEventData.showDateTime} 
                 className="bg-primary text-white px-8 py-2 mt-6 rounded hover:bg-primary/90 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {addingShow ? 'Adding...' : 'Add Event to Database'}
+                {addingShow ? 'Adding...' : 'Add Event'}
               </button>
             </>
           )}

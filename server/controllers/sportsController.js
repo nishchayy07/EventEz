@@ -164,15 +164,9 @@ export const getAllSportEvents = async (req, res) => {
             query.venue = { $regex: location, $options: 'i' };
         }
         
-        console.log('🏀 Sports Query:', JSON.stringify(query));
-        console.log('🏀 showAll parameter:', showAll);
-        
         const events = await SportEvent.find(query)
             .sort({ showDateTime: 1 })
             .limit(20);
-        
-        console.log('🏀 Found events count:', events.length);
-        console.log('🏀 Events:', events);
         
         res.json({ success: true, events });
     } catch (error) {

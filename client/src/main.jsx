@@ -4,6 +4,7 @@ import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'
 import { ClerkProvider } from '@clerk/clerk-react'
 import { AppProvider } from './context/AppContext.jsx'
+import ErrorBoundary from './components/ErrorBoundary.jsx'
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
@@ -12,13 +13,15 @@ function renderApp() {
 
   if (PUBLISHABLE_KEY) {
     root.render(
-      <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-        <BrowserRouter>
-          <AppProvider>
-            <App />
-          </AppProvider>
-        </BrowserRouter>
-      </ClerkProvider>,
+      <ErrorBoundary>
+        <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+          <BrowserRouter>
+            <AppProvider>
+              <App />
+            </AppProvider>
+          </BrowserRouter>
+        </ClerkProvider>
+      </ErrorBoundary>,
     )
     return
   }
@@ -31,11 +34,13 @@ function renderApp() {
   console.warn('VITE_CLERK_PUBLISHABLE_KEY not found. Rendering app without ClerkProvider.')
 
   root.render(
-    <BrowserRouter>
-      <AppProvider>
-        <App />
-      </AppProvider>
-    </BrowserRouter>,
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AppProvider>
+          <App />
+        </AppProvider>
+      </BrowserRouter>
+    </ErrorBoundary>,
   )
 }
 

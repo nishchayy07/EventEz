@@ -13,7 +13,6 @@ import Layout from './pages/admin/Layout'
 import Dashboard from './pages/admin/Dashboard'
 import AddShows from './pages/admin/AddShows'
 import ListShows from './pages/admin/ListShows'
-import ListBookings from './pages/admin/ListBookings'
 import { useAppContext } from './context/AppContext'
 import { SignIn } from '@clerk/clerk-react'
 import Loading from './components/Loading'
@@ -28,7 +27,9 @@ import VerifyTicket from './pages/VerifyTicket'
 import EventDetails from './pages/EventDetails'
 import NightlifeTicketSelection from './pages/NightlifeTicketSelection'
 import NightlifeSeatLayout from './pages/NightlifeSeatLayout'
-import AdminReleaseSeats from './pages/admin/AdminReleaseSeats';
+import AdminReleaseSeats from './pages/admin/AdminReleaseSeats'
+import NotFound from './pages/NotFound'
+import SearchResults from './pages/SearchResults'
 
 const App = () => {
 
@@ -42,6 +43,7 @@ const App = () => {
       {!isAdminRoute && <Navbar/>}
       <Routes>
         <Route path='/' element={<Home/>} />
+        <Route path='/search' element={<SearchResults/>} />
         <Route path='/sports' element={<Sports />} />
         <Route path='/sports/seat/:id' element={<SportsSeatLayout />} />
         <Route path='/sports/chess/:id' element={<ChessBooking />} />
@@ -67,9 +69,9 @@ const App = () => {
           <Route index element={<Dashboard/>}/>
           <Route path="add-shows" element={<AddShows/>}/>
           <Route path="list-shows" element={<ListShows/>}/>
-          <Route path="list-bookings" element={<ListBookings/>}/>
           <Route path="release-seats" element={<AdminReleaseSeats />} />
         </Route>
+        <Route path='*' element={<NotFound/>} />
       </Routes>
        {!isAdminRoute && <Footer />}
        {!isAdminRoute && <Chatbot />}

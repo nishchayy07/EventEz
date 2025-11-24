@@ -24,16 +24,27 @@ app.use('/api/stripe', express.raw({type: 'application/json'}), stripeWebhooks)
 
 // Middleware
 app.use(express.json())
+
+// CORS Configuration
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:3000',
+    process.env.CLIENT_URL // Add your production URL in .env
+].filter(Boolean); // Remove undefined values
+
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'],
+    origin: allowedOrigins,
     credentials: true
 }))
 
-// Request logger
-app.use((req, res, next) => {
-    console.log(`📨 ${req.method} ${req.path}`);
-    next();
-})
+// Request logger (only in development)
+if (process.env.NODE_ENV !== 'production') {
+    app.use((req, res, next) => {
+        console.log(`📨 ${req.method} ${req.path}`);
+        next();
+    })
+}
 
 // Public Route (chat) - before auth
 app.use('/api/chat', chatRouter)

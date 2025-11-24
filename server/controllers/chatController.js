@@ -9,7 +9,6 @@ import NightlifeEvent from "../models/NightlifeEvent.js";
 // Expects: { message: string, context?: object }
 export const chatWithAI = async (req, res) => {
 	try {
-		console.log('[chat] incoming request')
 		const authObj = typeof req.auth === 'function' ? req.auth() : req.auth;
 		const userId = authObj?.userId;
 		const { message, context } = req.body || {};
@@ -104,10 +103,6 @@ Rules: Only recommend listed events. Be concise (2-3 sentences). Suggest browsin
 		// Gemini API integration
 		if (process.env.GEMINI_API_KEY) {
 			try {
-				console.log('[chat] Using Gemini API');
-				console.log('[chat] User message:', message);
-				console.log('[chat] Event counts:', eventData.counts);
-				
 				const apiURL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GEMINI_API_KEY.trim()}`;
 
 				// Combine system prompt and user message
@@ -143,27 +138,19 @@ Rules: Only recommend listed events. Be concise (2-3 sentences). Suggest browsin
 					]
 				};
 
-				console.log('[chat] Calling Gemini API...');
 				const { data } = await axios.post(apiURL, reqBody, {
 					headers: { 'Content-Type': 'application/json' }
 				});
 
-				console.log('[chat] Gemini API response received');
 				const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 				
 				if (!text) {
-					console.error('[chat] No text in Gemini response:', JSON.stringify(data));
 					return res.json({ success: true, reply: 'I apologize, but I\'m having trouble processing that right now. Could you try asking in a different way?' });
 				}
 				
-				console.log('[chat] Response:', text);
 				return res.json({ success: true, reply: text });
 
 			} catch (error) {
-				const providerData = error?.response?.data;
-				console.error("[chat] Gemini API Error:", error.message);
-				console.error("[chat] Error details:", providerData || error);
-				
 				// Provide intelligent fallback with actual data based on user query
 				const query = message.toLowerCase();
 				let reply = '';

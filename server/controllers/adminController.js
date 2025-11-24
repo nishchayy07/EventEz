@@ -100,16 +100,9 @@ export const isAdmin = async (req, res) =>{
         const { userId } = req.auth();
         const user = await clerkClient.users.getUser(userId);
         
-        console.log('User metadata check:', {
-            userId,
-            privateMetadata: user.privateMetadata,
-            role: user.privateMetadata?.role
-        });
-        
         const isAdminUser = user.privateMetadata?.role === 'admin';
         res.json({success: true, isAdmin: isAdminUser, role: user.privateMetadata?.role})
     } catch (error) {
-        console.error('Error checking admin:', error);
         res.json({success: false, isAdmin: false})
     }
 }
@@ -162,6 +155,48 @@ export const getAllBookings = async (req, res) =>{
     } catch (error) {
         console.error(error);
         res.json({success: false, message: error.message})
+    }
+}
+
+// API to delete a movie show
+export const deleteShow = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const show = await Show.findByIdAndDelete(id);
+        if (!show) {
+            return res.json({ success: false, message: 'Show not found' });
+        }
+        res.json({ success: true, message: 'Show deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.json({ success: false, message: error.message });
+    }
+}
+
+// API to get all sport events
+export const getAllSportEvents = async (req, res) => {
+    try {
+        // Get all sport events, not just future ones
+        const sportEvents = await SportEvent.find({}).sort({ showDateTime: -1 });
+        res.json({ success: true, sportEvents });
+    } catch (error) {
+        console.error(error);
+        res.json({ success: false, message: error.message });
+    }
+}
+
+// API to delete a sport event
+export const deleteSportEvent = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const event = await SportEvent.findByIdAndDelete(id);
+        if (!event) {
+            return res.json({ success: false, message: 'Sport event not found' });
+        }
+        res.json({ success: true, message: 'Sport event deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.json({ success: false, message: error.message });
     }
 }
 
