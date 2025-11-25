@@ -547,6 +547,8 @@ export const createNightlifeBooking = async (req, res) => {
             cancel_url: `${origin}/nightlife/${eventId}/seats`,
             line_items: line_items,
             mode: 'payment',
+            locale: 'auto',
+            payment_method_types: ['card'],
             metadata: {
                 bookingId: booking._id.toString()
             },
@@ -615,6 +617,8 @@ export const createNightlifeTicketBooking = async (req, res) => {
             cancel_url: `${origin}/nightlife/${eventId}/tickets`,
             line_items: line_items,
             mode: 'payment',
+            locale: 'auto',
+            payment_method_types: ['card'],
             metadata: {
                 bookingId: booking._id.toString()
             },

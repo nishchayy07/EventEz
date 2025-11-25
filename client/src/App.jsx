@@ -30,6 +30,7 @@ import NightlifeSeatLayout from './pages/NightlifeSeatLayout'
 import AdminReleaseSeats from './pages/admin/AdminReleaseSeats'
 import NotFound from './pages/NotFound'
 import SearchResults from './pages/SearchResults'
+import StaffScanner from './pages/StaffScanner'
 
 const App = () => {
 
@@ -59,6 +60,7 @@ const App = () => {
         <Route path='/my-bookings' element={<MyBookings/>} />
         <Route path='/loading/:nextUrl' element={<Loading/>} />
         <Route path='/verify/:token' element={<VerifyTicket/>} />
+        <Route path='/staff/scan' element={<StaffScanner />} />
 
         <Route path='/favorite' element={<Favorite/>} />
         <Route path='/admin/*' element={user ? <Layout/> : (

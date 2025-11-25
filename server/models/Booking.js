@@ -12,6 +12,10 @@ const bookingSchema = new mongoose.Schema({
     paymentLink: {type: String},
     qrToken: {type: String},
     qrUsed: {type: Boolean, default: false},
+    qrUsedAt: {type: Date},
+    isCancelled: {type: Boolean, default: false},
+    cancelledAt: {type: Date},
+    refundAmount: {type: Number},
 },{timestamps: true })
 
 const Booking = mongoose.model("Booking", bookingSchema);

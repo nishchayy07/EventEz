@@ -37,6 +37,7 @@ const NightlifeSeatLayout = () => {
       console.log(error)
       toast.error('Failed to load event')
     }
+
   }
 
   const handleSeatClick = (seatId) => {

@@ -4,6 +4,7 @@ import Booking from "../models/Booking.js";
 import Show from "../models/Show.js";
 import sendEmail from "../configs/nodeMailer.js";
 import { set } from "mongoose";
+import { buildVerificationUrl, generateTicketQrDataUrl } from "../utils/ticketQr.js";
 
 // Create a client to send and receive events
 export const inngest = new Inngest({ id: "movie-ticket-booking" });
@@ -89,6 +90,9 @@ const sendBookingConfirmationEmail = inngest.createFunction(
             populate: {path: "movie", model: "Movie"}
         }).populate('user');
 
+        const verifyUrl = booking.qrToken ? buildVerificationUrl(booking.qrToken) : null;
+        const qrDataUrl = booking.qrToken ? await generateTicketQrDataUrl(booking.qrToken) : null;
+
         await sendEmail({
             to: booking.user.email,
             subject: `Payment Confirmation: "${booking.show.movie.title}" booked!`,
@@ -99,9 +103,20 @@ const sendBookingConfirmationEmail = inngest.createFunction(
                             <strong>Date:</strong> ${new Date(booking.show.showDateTime).toLocaleDateString('en-US', { timeZone: 'Asia/Kolkata' })}<br/>
                             <strong>Time:</strong> ${new Date(booking.show.showDateTime).toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata' })}
                         </p>
-                        <p>Enjoy the show! 🍿</p>
+                        <p><strong>Seats:</strong> ${booking.bookedSeats.join(', ')}</p>
+                        ${qrDataUrl ? `<div style="margin: 24px 0; text-align: center;">
+                            <p style="margin-bottom: 8px;">Show this QR code at the entry gate:</p>
+                            <img src="${qrDataUrl}" alt="Ticket QR" style="max-width: 220px; border: 8px solid #fff; border-radius: 16px; box-shadow: 0 12px 25px rgba(0,0,0,0.15);" />
+                            <p style="font-size: 12px; color: #666;">If the QR doesn't load, use this link: <a href="${verifyUrl}" target="_blank" rel="noopener noreferrer">${verifyUrl}</a></p>
+                        </div>` : ''}
+                        <p style="margin-top: 16px;">Enjoy the show! 🍿</p>
                         <p>Thanks for booking with us!<br/>— QuickShow Team</p>
-                    </div>`
+                    </div>`,
+            attachments: qrDataUrl ? [{
+                filename: 'ticket-qr.png',
+                path: qrDataUrl,
+                cid: 'ticket-qr'
+            }] : []
         })
     }
 )

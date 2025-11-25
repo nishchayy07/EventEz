@@ -59,7 +59,7 @@ export const createBooking = async (req, res)=>{
          // Creating line items to for Stripe
          const line_items = [{
             price_data: {
-                currency: 'usd',
+                currency: 'inr',
                 product_data:{
                     name: showData.movie.title
                 },
@@ -73,6 +73,8 @@ export const createBooking = async (req, res)=>{
             cancel_url: `${origin}/my-bookings`,
             line_items: line_items,
             mode: 'payment',
+            locale: 'auto',
+            payment_method_types: ['card'],
             metadata: {
                 bookingId: booking._id.toString()
             },
@@ -114,17 +116,177 @@ export const getOccupiedSeats = async (req, res)=>{
     }
 }
 
+const buildEventDetails = (booking) => {
+    const base = {
+        type: booking.type,
+        seats: booking.bookedSeats,
+        amount: booking.amount,
+        qrUsed: booking.qrUsed,
+        qrUsedAt: booking.qrUsedAt,
+        bookedAt: booking.createdAt
+    };
+
+    if (booking.type === 'sport' && booking.sportEvent) {
+        return {
+            ...base,
+            title: booking.sportEvent.title,
+            venue: booking.sportEvent.venue,
+            date: booking.sportEvent.showDateTime,
+        };
+    }
+
+    if (booking.type === 'nightlife' && booking.nightlifeEvent) {
+        return {
+            ...base,
+            title: booking.nightlifeEvent.title,
+            venue: booking.nightlifeEvent.venue,
+            date: booking.nightlifeEvent.showDateTime,
+        };
+    }
+
+    if (booking.show) {
+        return {
+            ...base,
+            title: booking.show.movie?.title,
+            venue: 'Movie Auditorium',
+            date: booking.show.showDateTime,
+        };
+    }
+
+    return base;
+}
+
 // Verify QR token and mark as used (single-use)
 export const verifyQrToken = async (req, res) => {
     try {
         const { token } = req.params;
-        const booking = await Booking.findOne({ qrToken: token });
+        const booking = await Booking.findOne({ qrToken: token })
+            .populate({ path: 'show', populate: { path: 'movie', model: 'Movie' } })
+            .populate('sportEvent')
+            .populate('nightlifeEvent')
+            .populate('user');
+
         if (!booking) return res.status(404).json({ success: false, message: 'Invalid QR' });
         if (!booking.isPaid) return res.status(400).json({ success: false, message: 'Payment pending' });
-        if (booking.qrUsed) return res.status(400).json({ success: false, message: 'QR already used' });
+        if (booking.isCancelled) return res.status(400).json({ success: false, message: 'Booking has been cancelled' });
+        if (booking.qrUsed) {
+            return res.status(400).json({
+                success: false,
+                message: 'QR already used',
+                data: {
+                    booking: buildEventDetails(booking),
+                    attendee: booking.user ? {
+                        name: booking.user.name,
+                        email: booking.user.email
+                    } : null
+                }
+            });
+        }
         booking.qrUsed = true;
+        booking.qrUsedAt = new Date();
         await booking.save();
-        res.json({ success: true });
+        res.json({
+            success: true,
+            data: {
+                booking: buildEventDetails(booking),
+                attendee: booking.user ? {
+                    name: booking.user.name,
+                    email: booking.user.email
+                } : null
+            }
+        });
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
+// Cancel booking with 50% refund
+export const cancelBooking = async (req, res) => {
+    try {
+        const { userId } = req.auth();
+        const { bookingId } = req.params;
+
+        const booking = await Booking.findById(bookingId)
+            .populate('show')
+            .populate('sportEvent')
+            .populate('nightlifeEvent');
+
+        if (!booking) {
+            return res.status(404).json({ success: false, message: 'Booking not found' });
+        }
+
+        // Verify ownership
+        if (booking.user.toString() !== userId) {
+            return res.status(403).json({ success: false, message: 'Unauthorized' });
+        }
+
+        // Check if already cancelled
+        if (booking.isCancelled) {
+            return res.status(400).json({ success: false, message: 'Booking already cancelled' });
+        }
+
+        // Check if payment is completed
+        if (!booking.isPaid) {
+            return res.status(400).json({ success: false, message: 'Cannot cancel unpaid booking' });
+        }
+
+        // Check if QR already used (ticket already scanned)
+        if (booking.qrUsed) {
+            return res.status(400).json({ success: false, message: 'Cannot cancel: Ticket already used at entry' });
+        }
+
+        // Calculate 50% refund
+        const refundAmount = Math.floor(booking.amount * 0.5 * 100) / 100; // Round to 2 decimals
+
+        // Release seats based on event type
+        if (booking.type === 'movie' && booking.show) {
+            const show = booking.show;
+            booking.bookedSeats.forEach(seat => {
+                delete show.occupiedSeats[seat];
+            });
+            show.markModified('occupiedSeats');
+            await show.save();
+        } else if (booking.type === 'sport' && booking.sportEvent) {
+            const event = booking.sportEvent;
+            const isChess = event.sport?.toLowerCase() === 'chess';
+            if (!isChess && event.occupiedSeats) {
+                booking.bookedSeats.forEach(seat => {
+                    delete event.occupiedSeats[seat];
+                });
+                event.markModified('occupiedSeats');
+                await event.save();
+            }
+        } else if (booking.type === 'nightlife' && booking.nightlifeEvent) {
+            const event = booking.nightlifeEvent;
+            if (Array.isArray(event.occupiedSeats)) {
+                event.occupiedSeats = event.occupiedSeats.filter(seat => !booking.bookedSeats.includes(seat));
+                await event.save();
+            } else if (typeof event.occupiedSeats === 'object') {
+                booking.bookedSeats.forEach(seat => {
+                    delete event.occupiedSeats[seat];
+                });
+                event.markModified('occupiedSeats');
+                await event.save();
+            }
+        }
+
+        // Mark booking as cancelled
+        booking.isCancelled = true;
+        booking.cancelledAt = new Date();
+        booking.refundAmount = refundAmount;
+        await booking.save();
+
+        res.json({
+            success: true,
+            message: 'Booking cancelled successfully',
+            data: {
+                bookingId: booking._id,
+                originalAmount: booking.amount,
+                refundAmount: refundAmount,
+                deduction: booking.amount - refundAmount
+            }
+        });
     } catch (error) {
         console.log(error.message);
         res.status(500).json({ success: false, message: error.message });
