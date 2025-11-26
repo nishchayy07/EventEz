@@ -154,7 +154,7 @@ const Navbar = () => {
         <Link onClick={()=> {scrollTo(0,0); setIsOpen(false)}} to='/movies'>Movies</Link>
         <Link onClick={()=> {scrollTo(0,0); setIsOpen(false)}} to='/sports'>Sports</Link>
         <Link onClick={()=> {scrollTo(0,0); setIsOpen(false)}} to='/nightlife'>Nightlife</Link>
-        <Link onClick={()=> {scrollTo(0,0); setIsOpen(false)}} to='/admin'>Admin</Link>
+        {/* <Link onClick={()=> {scrollTo(0,0); setIsOpen(false)}} to='/admin'>Admin</Link> */}
        {favoriteMovies.length > 0 && <Link onClick={()=> {scrollTo(0,0); setIsOpen(false)}} to='/favorite'>Favorites</Link>}
       </div>
 
