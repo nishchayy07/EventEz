@@ -52,13 +52,30 @@ export const AppProvider = ({ children })=>{
     const fetchShows = async ()=>{
         try {
             const { data } = await axios.get('/api/show/all')
-            if(data.success){
-                setShows(data.shows)
+            if(data.success && data.shows){
+                // Extract unique movies from shows
+                const uniqueMovies = [];
+                const seenMovieIds = new Set();
+                
+                data.shows.forEach(show => {
+                    if (!show || !show.movie) return;
+                    
+                    const movie = show.movie;
+                    const movieId = movie._id;
+                    
+                    if (movieId && !seenMovieIds.has(movieId)) {
+                        seenMovieIds.add(movieId);
+                        // Use movie._id for navigation (the API expects movie ID)
+                        uniqueMovies.push({ ...movie, _id: movieId });
+                    }
+                });
+                
+                setShows(uniqueMovies)
             }else{
-                toast.error(data.message)
+                toast.error(data.message || 'Failed to fetch shows')
             }
         } catch (error) {
-            console.error(error)
+            console.error('Error fetching shows:', error)
         }
     }
 

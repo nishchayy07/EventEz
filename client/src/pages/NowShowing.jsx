@@ -13,8 +13,8 @@ const NowShowing = () => {
 
       <h1 className='text-lg font-medium my-4'>Now Showing</h1>
       <div className='flex flex-wrap max-sm:justify-center gap-8'>
-        {shows.map((movie) => (
-          <MovieCard movie={movie} key={movie._id} />
+        {shows.map((show) => (
+          <MovieCard movie={show.movie || show} key={show._id} />
         ))}
       </div>
     </div>

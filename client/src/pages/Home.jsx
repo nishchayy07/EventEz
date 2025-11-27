@@ -177,17 +177,17 @@ const Home = () => {
                 <div 
                   key={show._id} 
                   className="w-[220px] flex-shrink-0 cursor-pointer"
-                  onClick={() => navigate(`/movies/${show._id}`)}
+                  onClick={() => navigate(`/movies/${show.movie?.id || show._id}`)}
                 >
                   <div className="group relative rounded-lg overflow-hidden transition-transform duration-300 hover:scale-105">
                     <img 
-                      src={image_base_url + show.poster_path} 
-                      alt={show.title}
+                      src={image_base_url + (show.movie?.poster_path || show.poster_path)} 
+                      alt={show.movie?.title || show.title}
                       className="w-full h-80 object-cover"
                     />
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4">
-                      <h4 className="text-white font-semibold text-lg line-clamp-1">{show.title}</h4>
-                      <p className="text-gray-300 text-sm">{show.genres?.map(g => g.name).join(', ')}</p>
+                      <h4 className="text-white font-semibold text-lg line-clamp-1">{show.movie?.title || show.title}</h4>
+                      <p className="text-gray-300 text-sm">{(show.movie?.genres || show.genres)?.map(g => g.name).join(', ')}</p>
                     </div>
                   </div>
                 </div>

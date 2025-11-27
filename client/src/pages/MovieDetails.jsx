@@ -20,12 +20,18 @@ const MovieDetails = () => {
 
   const getShow = async ()=>{
     try {
+      console.log('Fetching show with ID:', id);
       const { data } = await axios.get(`/api/show/${id}`)
+      console.log('API Response:', data);
       if(data.success){
-        setShow(data)
+        // Backend returns { movie, dateTime }, wrap it to maintain compatibility
+        console.log('Setting show with movie:', data.movie);
+        setShow({ movie: data.movie, dateTime: data.dateTime })
+      } else {
+        console.error('API returned success: false', data);
       }
     } catch (error) {
-      console.log(error)
+      console.error('Error fetching show:', error)
     }
   }
 
@@ -48,7 +54,7 @@ const MovieDetails = () => {
     getShow()
   },[id])
 
-  return show ? (
+  return show && show.movie ? (
     <div className='px-6 md:px-16 lg:px-40 pt-30 md:pt-50'>
       <div className='flex flex-col md:flex-row gap-8 max-w-6xl mx-auto'>
 
