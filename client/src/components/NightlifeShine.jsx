@@ -169,7 +169,6 @@ const NightlifeShine = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <button className='px-4 py-2 rounded-md ring-1 ring-white/10 hover:bg-white/10 transition'><Filter className='w-4 h-4 inline-block mr-2' />More Filters</button>
           </div>
           <div className='flex gap-2 overflow-x-auto'>
             <button onClick={() => setSelectedCategory('all')} className={`px-3 py-1.5 rounded-full text-sm ring-1 ring-white/10 ${selectedCategory==='all' ? 'bg-primary text-white' : 'bg-white/5 text-gray-200'}`}>All</button>

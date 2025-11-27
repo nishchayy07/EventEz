@@ -47,7 +47,7 @@ const Navbar = () => {
        
        // Fetch data from all categories
        const [moviesRes, sportsRes, nightlifeRes] = await Promise.all([
-         axios.get('/api/show/all-shows').catch(() => ({ data: { shows: [] } })),
+         axios.get('/api/show/all').catch(() => ({ data: { shows: [] } })),
          axios.get('/api/sports/all-events', { params: { showAll: 'true' } }).catch(() => ({ data: { events: [] } })),
          axios.get('/api/nightlife/events', { params: { showAll: 'true' } }).catch(() => ({ data: { events: [] } }))
        ])
@@ -55,8 +55,18 @@ const Navbar = () => {
        const results = []
 
        // Filter movies
+       console.log('Movies response:', moviesRes.data);
+       console.log('Total shows:', moviesRes.data.shows?.length);
+       
+       const seenMovieIds = new Set();
        moviesRes.data.shows?.forEach(show => {
-         if (show.movie?.title?.toLowerCase().includes(searchTerm)) {
+         console.log('Checking movie:', show.movie?.title, 'against search term:', searchTerm);
+         const matchesSearch = show.movie?.title?.toLowerCase().includes(searchTerm) || 
+                              show.movie?.original_title?.toLowerCase().includes(searchTerm);
+         
+         if (matchesSearch && !seenMovieIds.has(show.movie.id)) {
+           seenMovieIds.add(show.movie.id);
+           console.log('✅ Match found:', show.movie.title);
            results.push({
              type: 'movie',
              title: show.movie.title,
@@ -75,7 +85,8 @@ const Navbar = () => {
              title: event.title,
              id: event._id,
              subtitle: event.sport,
-             image: event.image
+             image: event.image,
+             sportType: event.sport?.toLowerCase() // Add sport type for routing
            })
          }
        })
@@ -220,7 +231,7 @@ const Navbar = () => {
                 <div className='p-4'>
                   <p className='text-sm text-gray-400 mb-3'>Popular searches</p>
                   <div className='flex flex-wrap gap-2'>
-                    {['Movies', 'Comedy Shows', 'Concerts', 'Sports Events', 'Theatre'].map((tag) => (
+                    {['Comedy Shows', 'Concerts', 'Sports Events', 'Theatre'].map((tag) => (
                       <button
                         key={tag}
                         onClick={() => {
@@ -249,7 +260,15 @@ const Navbar = () => {
                             if (item.type === 'movie') {
                               navigate(`/movies/${item.id}`)
                             } else if (item.type === 'sport') {
-                              navigate(`/sports/${item.id}`)
+                              // Route based on sport type
+                              const sportType = item.sportType || '';
+                              if (sportType === 'chess') {
+                                navigate(`/sports/chess/${item.id}`)
+                              } else if (sportType === 'running') {
+                                navigate(`/sports/running/${item.id}`)
+                              } else {
+                                navigate(`/sports/seat/${item.id}`)
+                              }
                             } else if (item.type === 'nightlife') {
                               navigate(`/nightlife/${item.id}`)
                             }
@@ -278,7 +297,15 @@ const Navbar = () => {
                     </div>
                   ) : (
                     <div className='p-8 text-center text-gray-400'>
-                      <p className='text-sm'>No results found for "{searchQuery}"</p>
+                      <p className='text-sm mb-3'>No suggestions found for "{searchQuery}"</p>
+                      <button
+                        onClick={() => {
+                          handleSearch({ preventDefault: () => {} })
+                        }}
+                        className='px-4 py-2 bg-primary hover:bg-primary-dull rounded-lg text-sm transition text-white'
+                      >
+                        See all results for "{searchQuery}"
+                      </button>
                     </div>
                   )}
                 </div>

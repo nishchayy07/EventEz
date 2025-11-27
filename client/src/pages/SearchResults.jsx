@@ -29,29 +29,56 @@ const SearchResults = () => {
       try {
         const searchTerm = query.toLowerCase();
         
-        // Search Movies
+        // Check if searching for category types
+        const isMovieSearch = searchTerm === 'movies' || searchTerm === 'movie';
+        const isSportsSearch = searchTerm === 'sports events' || searchTerm === 'sports' || searchTerm === 'sport';
+        const isConcertSearch = searchTerm === 'concerts' || searchTerm === 'concert';
+        const isComedySearch = searchTerm === 'comedy shows' || searchTerm === 'comedy';
+        const isTheatreSearch = searchTerm === 'theatre' || searchTerm === 'theater';
+        
+        // Search Movies - if "movies" is searched, show all movies
         const moviesRes = await axios.get('/api/show/all-shows');
-        const filteredMovies = moviesRes.data.shows?.filter(show => 
-          show.movie?.title?.toLowerCase().includes(searchTerm) ||
-          show.movie?.original_title?.toLowerCase().includes(searchTerm)
-        ) || [];
+        const filteredMovies = isMovieSearch 
+          ? moviesRes.data.shows || []
+          : moviesRes.data.shows?.filter(show => 
+              show.movie?.title?.toLowerCase().includes(searchTerm) ||
+              show.movie?.original_title?.toLowerCase().includes(searchTerm)
+            ) || [];
 
-        // Search Sports
+        // Search Sports - if "sports" is searched, show all sports
         const sportsRes = await axios.get('/api/sports/all-events', { params: { showAll: 'true' } });
-        const filteredSports = sportsRes.data.events?.filter(event =>
-          event.title?.toLowerCase().includes(searchTerm) ||
-          event.sport?.toLowerCase().includes(searchTerm) ||
-          event.venue?.toLowerCase().includes(searchTerm)
-        ) || [];
+        const filteredSports = isSportsSearch
+          ? sportsRes.data.events || []
+          : sportsRes.data.events?.filter(event =>
+              event.title?.toLowerCase().includes(searchTerm) ||
+              event.sport?.toLowerCase().includes(searchTerm) ||
+              event.venue?.toLowerCase().includes(searchTerm)
+            ) || [];
 
-        // Search Nightlife
+        // Search Nightlife - category-based or text search
         const nightlifeRes = await axios.get('/api/nightlife/events', { params: { showAll: 'true' } });
-        const filteredNightlife = nightlifeRes.data.events?.filter(event =>
-          event.title?.toLowerCase().includes(searchTerm) ||
-          event.category?.toLowerCase().includes(searchTerm) ||
-          event.venue?.toLowerCase().includes(searchTerm) ||
-          event.artist?.toLowerCase().includes(searchTerm)
-        ) || [];
+        let filteredNightlife = [];
+        
+        if (isConcertSearch) {
+          filteredNightlife = nightlifeRes.data.events?.filter(event => 
+            event.category?.toLowerCase() === 'concerts'
+          ) || [];
+        } else if (isComedySearch) {
+          filteredNightlife = nightlifeRes.data.events?.filter(event => 
+            event.category?.toLowerCase().includes('comedy')
+          ) || [];
+        } else if (isTheatreSearch) {
+          filteredNightlife = nightlifeRes.data.events?.filter(event => 
+            event.category?.toLowerCase().includes('theatre')
+          ) || [];
+        } else {
+          filteredNightlife = nightlifeRes.data.events?.filter(event =>
+            event.title?.toLowerCase().includes(searchTerm) ||
+            event.category?.toLowerCase().includes(searchTerm) ||
+            event.venue?.toLowerCase().includes(searchTerm) ||
+            event.artist?.toLowerCase().includes(searchTerm)
+          ) || [];
+        }
 
         setResults({
           movies: filteredMovies,
