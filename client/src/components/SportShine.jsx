@@ -223,7 +223,12 @@ const SportShine = () => {
                         <MapPin className='w-4 h-4 mr-2 text-primary flex-shrink-0 mt-0.5' />
                         <span className='line-clamp-2'>{team.strStadium || 'Stadium info not available'}, {team.strCountry}</span>
                       </div>
-                      {team.intFormedYear && (
+                      {team.showDateTime ? (
+                        <div className='flex items-center text-sm'>
+                          <Calendar className='w-4 h-4 mr-2 text-primary flex-shrink-0' />
+                          {new Date(team.showDateTime).toLocaleDateString('en-US', { weekday: 'short', day: '2-digit', month: 'short' })} at {new Date(team.showDateTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                        </div>
+                      ) : team.intFormedYear && (
                         <div className='flex items-center text-sm'>
                           <Calendar className='w-4 h-4 mr-2 text-primary flex-shrink-0' />
                           Founded in {team.intFormedYear}

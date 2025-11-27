@@ -1459,9 +1459,19 @@ const SportsSeatLayout = () => {
 
           <p className='text-lg font-semibold'>{event.title}</p>
 
-          <p className='text-gray-400 text-sm mt-1'>{new Date(event.showDateTime).toLocaleString()}</p>
+          <p className='text-gray-400 text-sm mt-1'>{event.venue}</p>
 
-          <p className='text-primary font-semibold mt-2'>₹{event.price}</p>
+          <p className='text-gray-400 text-sm mt-1'>{new Date(event.showDateTime).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</p>
+
+          <p className='text-gray-400 text-sm mt-1'>{event.sport}</p>
+
+          <div className='mt-4'>
+
+            <p className='text-xs text-gray-500'>Ticket Price</p>
+
+            <p className='text-primary font-semibold text-xl'>₹{event.price}</p>
+
+          </div>
 
           
 
