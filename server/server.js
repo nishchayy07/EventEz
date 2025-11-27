@@ -30,34 +30,36 @@ const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:5174',
     'http://localhost:3000',
-    process.env.CLIENT_URL, // Production frontend URL
-    'https://eventez.vercel.app', // Explicit production URL
-    /\.vercel\.app$/ // Allow all Vercel preview deployments
+    process.env.CLIENT_URL, // Production frontend URL from env
+    'https://eventez.vercel.app', // Your main production URL
+    'https://eventez-frontend.vercel.app', // Alternative production URL
 ].filter(Boolean); // Remove undefined values
+
+console.log('✅ Allowed CORS origins:', allowedOrigins);
 
 app.use(cors({
     origin: function (origin, callback) {
         // Allow requests with no origin (mobile apps, Postman, etc.)
         if (!origin) return callback(null, true);
         
-        // Check if origin is allowed
-        const isAllowed = allowedOrigins.some(allowed => {
-            if (allowed instanceof RegExp) {
-                return allowed.test(origin);
-            }
-            return allowed === origin;
-        });
-        
-        if (isAllowed) {
-            callback(null, true);
-        } else {
-            console.log('❌ Blocked origin:', origin);
-            callback(new Error('Not allowed by CORS'));
+        // Allow any Vercel deployment
+        if (origin.includes('.vercel.app')) {
+            return callback(null, true);
         }
+        
+        // Check if origin is in allowed list
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        
+        console.log('❌ Blocked origin:', origin);
+        console.log('Allowed origins:', allowedOrigins);
+        callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'clerk-api-version'],
+    exposedHeaders: ['Content-Range', 'X-Content-Range']
 }))
 
 // Request logger (only in development)
