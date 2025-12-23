@@ -8,7 +8,7 @@
 
 ### ✨ The Ultimate Platform for Nightlife, Sports & Event Booking ✨
 
-[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-EventEz-667eea?style=for-the-badge)](https://www.eventez.vercel.app)
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-EventEz-667eea?style=for-the-badge)](https://eventez.vercel.app)
 [![GitHub](https://img.shields.io/badge/GitHub-nishchayy07-181717?style=for-the-badge&logo=github)](https://github.com/nishchayy07/EventEz)
 [![License](https://img.shields.io/badge/License-MIT-00d4aa?style=for-the-badge)](LICENSE)
 
