@@ -1,8 +1,10 @@
 <div align="center">
 
+<img src="./screenshots/logo.svg" alt="EventEz Logo" width="200"/>
+
 # 🎟️ EventEz
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:667eea,100:764ba2&height=220&section=header&text=EventEz&fontSize=80&fontColor=ffffff&animation=fadeIn&fontAlignY=35&desc=Book%20Events.%20Live%20Experiences.&descSize=20&descAlignY=55" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:667eea,100:764ba2&height=200&section=header&text=Book%20Events.%20Live%20Experiences.&fontSize=35&fontColor=ffffff&animation=fadeIn&fontAlignY=45" width="100%"/>
 
 ### ✨ The Ultimate Platform for Nightlife, Sports & Event Booking ✨
 
@@ -303,8 +305,8 @@ This project is licensed under the **MIT License** — feel free to use it for y
 
 ### ⭐ Star this repo if you found it helpful!
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:667eea,100:764ba2&height=120&section=footer"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:667eea,100:764ba2&height=100&section=footer"/>
 
-**Made with ❤️ by [Nishchay](https://github.com/nishchayy07)**
+**Made with ❤️**
 
 </div>
